@@ -1,0 +1,3 @@
+[submodule "live555"]
+	path = live555
+	url = https://github.com/rgaufman/live555.git
