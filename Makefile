@@ -17,7 +17,7 @@ capture:
 
 .PHONY: live555
 live555:
-	cd live555 && ./genMakefiles linux && make -j4
+	cd live555 && ./genMakefiles armlinux && make -j4
 
 clean:
 	rm -rf capture rtsp-streamer
