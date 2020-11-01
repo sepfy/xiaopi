@@ -1,3 +1,15 @@
 [submodule "live555"]
 	path = live555
 	url = https://github.com/sepfy/live555.git
+[submodule "bsp/poky"]
+	path = bsp/poky
+	url = https://git.yoctoproject.org/cgit/cgit.cgi/poky
+	branch = warrior
+[submodule "bsp/meta-openembedded"]
+	path = bsp/meta-openembedded
+	url = https://git.openembedded.org/meta-openembedded
+	branch = warrior
+[submodule "bsp/meta-raspberrypi"]
+	path = bsp/meta-raspberrypi
+	url = http://git.yoctoproject.org/cgit/cgit.cgi/meta-raspberrypi
+	branch = warrior

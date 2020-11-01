@@ -1,0 +1,11 @@
+[Unit]
+Description=RTSP server
+After=initscript.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/rtsp-server
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
