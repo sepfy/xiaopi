@@ -12,6 +12,7 @@ BBLAYERS ?= " \
   /mnt/piipcam/bsp/meta-openembedded/meta-oe \
   /mnt/piipcam/bsp/meta-openembedded/meta-networking \
   /mnt/piipcam/bsp/meta-openembedded/meta-python \
+  /mnt/piipcam/bsp/meta-openembedded/meta-filesystems \
   /mnt/piipcam/bsp/meta-raspberrypi \
   /mnt/piipcam/bsp/meta-piipcam \
   "

@@ -3,5 +3,6 @@
 # Wait for wlan up
 sleep 10
 ifconfig wlan0 192.168.11.1
+ifconfig usb0 192.168.13.1
 /usr/sbin/hostapd /etc/hostapd.conf -P /run/hostapd.pid -B
 echo "" > /etc/hosts
