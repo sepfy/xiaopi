@@ -4,15 +4,14 @@ LICENSE = "CLOSED"
 
 SRC_URI =  " \
     file://ipcam.conf \
+    file://hosts \
 "
 
-inherit systemd
+FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 
-do_compile() {
-}
-
-do_install () {
+do_install_append () {
     install -d ${D}${sysconfdir}/modules-load.d/
     install -m 0755 ${WORKDIR}/ipcam.conf ${D}${sysconfdir}/modules-load.d/
+    install -m 0755 ${WORKDIR}/hosts ${D}${sysconfdir}/
 }
 
