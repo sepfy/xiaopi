@@ -1,0 +1,10 @@
+[Unit]
+Description=Main program
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/main
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

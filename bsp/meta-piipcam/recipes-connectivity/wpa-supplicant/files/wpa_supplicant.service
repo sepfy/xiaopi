@@ -1,0 +1,12 @@
+[Unit]
+Description=WPA supplicant
+Before=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/sbin/wpa_supplicant -Dnl80211 -iwlan0 -c/etc/wpa_supplicant.conf
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

@@ -33,7 +33,7 @@ fi
 
 # Wait for wlan up
 sleep 10
-ifconfig wlan0 192.168.11.1
+iw dev wlan0 interface add wlan1 type __ap
+ifconfig wlan1 192.168.11.1
 ifconfig usb0 192.168.13.1
-/usr/sbin/hostapd /etc/hostapd.conf -P /run/hostapd.pid -B
 

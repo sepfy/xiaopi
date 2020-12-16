@@ -3,6 +3,6 @@ DESCRIPTION = "Recipe created by bitbake-layers"
 LICENSE = "MIT"
 
 inherit core-image
-IMAGE_INSTALL += "openssh hostapd dnsmasq userland initscript rtsp-server wpa-supplicant exfat-utils fuse-exfat"
 
-EXTRA_IMAGE_FEATURES += "read-only-rootfs"
+IMAGE_INSTALL += "openssh hostapd dnsmasq userland initscript rtsp-server wpa-supplicant exfat-utils fuse-exfat main"
+
