@@ -14,20 +14,22 @@ namespace utility {
 
 std::string Net::GetIpAddr(std::string interface) {
 
-  int fd;
+  int fd, ret;
   struct ifreq ifr;
+  std::string addr = "";
 
   fd = socket(AF_INET, SOCK_DGRAM, 0);
 
   ifr.ifr_addr.sa_family = AF_INET;
 
   strncpy(ifr.ifr_name, interface.c_str(), IFNAMSIZ-1);
-  ioctl(fd, SIOCGIFADDR, &ifr);
+  ret = ioctl(fd, SIOCGIFADDR, &ifr);
+  if(ret != -1) {
+    addr = inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr);
+  }
   close(fd);
 
-  std::string addr(inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr));
-
- return addr;
+  return addr;
 }
 
 } // namespace utility

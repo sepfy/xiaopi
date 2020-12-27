@@ -89,6 +89,10 @@ bool NetworkManager::ApplyWpaConfig(std::string ssid, std::string psk, std::stri
   if(wpa_config.is_open()) {
     wpa_config << buf;
     wpa_config.close();
+    // TODO: Handle WiFi channel for sta + ap mode
+    system("systemctl disable hostapd");
+    system("systemctl stop hostapd");
+    system("systemctl restart wpa_supplicant");
     return true;
   }
   else 

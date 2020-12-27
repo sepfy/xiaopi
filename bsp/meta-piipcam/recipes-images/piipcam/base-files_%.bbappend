@@ -2,7 +2,7 @@ SUMMARY = "Configuration files"
 DESCRIPTION = "Kernel modules, networking..."
 LICENSE = "CLOSED"
 
-SRC_URI =  " \
+SRC_URI +=  " \
     file://ipcam.conf \
     file://hosts \
     file://wlan0.network \

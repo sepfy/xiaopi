@@ -15,6 +15,8 @@ RDEPENDS_${PN} += "bash"
 SYSTEMD_PACKAGES = "${PN}"
 SYSTEMD_SERVICE_${PN} = "rtsp-server.service capture.service"
 
+RDEPENDS_${PN} += "userland"
+
 do_compile () {
 }
 
