@@ -20,3 +20,7 @@ endif(UNITTEST_ENABLE)
 
 add_executable(main main.cc)
 target_link_libraries(main rest system_manager network_manager utility ssl crypto)
+
+install(TARGETS main
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/
+)

@@ -48,11 +48,7 @@ void SystemManager::UpdateConfig(std::string key, std::string value) {
 }
 
 std::string SystemManager::ReadConfig(std::string key) {
-
-  if(system_config_.contains(key))
-    return system_config_[key];
-  else
-    return "";
+  return system_config_[key];
 }
 
 void SystemManager::ResetToDefault() {
