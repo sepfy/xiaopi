@@ -1,6 +1,3 @@
-[submodule "live555"]
-	path = live555
-	url = https://github.com/sepfy/live555.git
 [submodule "bsp/poky"]
 	path = bsp/poky
 	url = https://git.yoctoproject.org/cgit/cgit.cgi/poky
