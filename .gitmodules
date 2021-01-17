@@ -10,9 +10,3 @@
 	path = bsp/meta-raspberrypi
 	url = http://git.yoctoproject.org/cgit/cgit.cgi/meta-raspberrypi
 	branch = warrior
-[submodule "3rdparty/pistache"]
-	path = 3rdparty/pistache
-	url = https://github.com/pistacheio/pistache.git
-[submodule "3rdparty/json"]
-	path = 3rdparty/json
-	url = https://github.com/nlohmann/json.git
