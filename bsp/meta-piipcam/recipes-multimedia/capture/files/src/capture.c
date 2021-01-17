@@ -63,6 +63,7 @@ void* write_es_queue_thread(void *data) {
     int ret;
     while(1) {
         char buf[64];
+        usleep(33000);
 	if(!g_es_fd) continue;
 //	printf("%d\n", g_es_fd);
         pthread_mutex_lock(&mutex);
@@ -75,7 +76,6 @@ void* write_es_queue_thread(void *data) {
           perror("write error");
         }
 	free_es_data(data);
-        usleep(33000);
     }
     
 
@@ -406,6 +406,7 @@ int start_enqueue_buffer() {
 
 int main(int argc, char** argv) {
 
+  printf("Resolution = (%d, %d)\n", VIDEO_WIDTH, VIDEO_HEIGHT);
   g_es_queue = create_es_queue();
   mkfifo(g_es_fifo_path, 0666); 
 
