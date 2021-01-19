@@ -7,6 +7,7 @@ DEPENDS = "userland"
 RDEPENDS_${PN} += "bash"
 SYSTEMD_PACKAGES = "${PN}"
 SYSTEMD_SERVICE_${PN} = "capture.service"
+INSANE_SKIP_${PN} = "ldflags"
 
 SRC_URI =  " \
     file://src \
