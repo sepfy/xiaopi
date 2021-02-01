@@ -1,0 +1,22 @@
+From e9c890b0c891522368d9eb6038cffbddf0353033 Mon Sep 17 00:00:00 2001
+From: sepfy <sepfy95@gmail.com>
+Date: Tue, 19 Jan 2021 20:46:15 +0800
+Subject: [PATCH] Force to 30 fps
+
+---
+ liveMedia/H264or5VideoStreamFramer.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/liveMedia/H264or5VideoStreamFramer.cpp b/liveMedia/H264or5VideoStreamFramer.cpp
+index 0cc2c44..106eb52 100644
+--- a/liveMedia/H264or5VideoStreamFramer.cpp
++++ b/liveMedia/H264or5VideoStreamFramer.cpp
+@@ -84,7 +84,7 @@ H264or5VideoStreamFramer
+     ? new H264or5VideoStreamParser(hNumber, this, inputSource, includeStartCodeInOutput)
+     : NULL;
+   fNextPresentationTime = fPresentationTimeBase;
+-  fFrameRate = 25.0; // We assume a frame rate of 25 fps, unless we learn otherwise (from parsing a VPS or SPS NAL unit)
++  fFrameRate = 30.0; // We assume a frame rate of 25 fps, unless we learn otherwise (from parsing a VPS or SPS NAL unit)
+ }
+ 
+ H264or5VideoStreamFramer::~H264or5VideoStreamFramer() {
