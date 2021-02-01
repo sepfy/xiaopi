@@ -4,6 +4,9 @@
 #include <string>
 #include <pthread.h>
 
+#include "wifi_station.h"
+#include "wifi_softap.h"
+
 typedef struct NetworkInterface_ {
 
   std::string interface;
@@ -23,6 +26,8 @@ class NetworkManager {
   std::string GetNetworkStatus();
 
  private:
+  WifiStation wifi_station_;
+  WifiSoftap wifi_softap_;
   NetworkManager();
 #ifdef DEVEL
   std::string interface_ = "wlx40b07656eff8";

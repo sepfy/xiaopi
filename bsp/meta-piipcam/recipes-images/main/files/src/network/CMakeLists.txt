@@ -18,7 +18,7 @@ if(UNITTEST_ENABLE)
 endif(UNITTEST_ENABLE)
 
 add_library(network_manager ${LIB_SRC})
-target_link_libraries(network_manager system_manager utility)
+target_link_libraries(network_manager system_manager utility wpa_client)
 
 if(UNITTEST_ENABLE)
   foreach(sourcefile ${UNITTEST_SRC})

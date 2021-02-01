@@ -14,8 +14,8 @@ inherit systemd cmake
 S = "${WORKDIR}"
 EXTRA_OECMAKE = ""
 
-DEPENDS = "nlohmann-json pistache openssl"
-RDEPENDS_${PN} += "bash"
+DEPENDS = "nlohmann-json pistache openssl wpa-supplicant"
+RDEPENDS_${PN} += "bash libwpa-client"
 SYSTEMD_PACKAGES = "${PN}"
 SYSTEMD_SERVICE_${PN} = "main.service"
 SYSTEMD_AUTO_ENABLE = "enable"
