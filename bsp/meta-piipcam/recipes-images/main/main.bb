@@ -2,10 +2,13 @@ SUMMARY = "Main program"
 DESCRIPTION = "Handle main function"
 LICENSE = "CLOSED"
 
+
+FILESEXTRAPATHS_prepend := "${THISDIR}/../../../../:"
+
 SRC_URI =  " \
     file://main.service \
     file://dist/ \
-    file://src \
+    file://src/ \
     file://CMakeLists.txt \
 "
 
