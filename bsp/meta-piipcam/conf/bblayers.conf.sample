@@ -5,14 +5,14 @@ POKY_BBLAYERS_CONF_VERSION = "2"
 BBPATH = "${TOPDIR}"
 BBFILES ?= ""
 
-BBLAYERS ?= " \
-  /mnt/piipcam/bsp/poky/meta \
-  /mnt/piipcam/bsp/poky/meta-poky \
-  /mnt/piipcam/bsp/poky/meta-yocto-bsp \
-  /mnt/piipcam/bsp/meta-openembedded/meta-oe \
-  /mnt/piipcam/bsp/meta-openembedded/meta-networking \
-  /mnt/piipcam/bsp/meta-openembedded/meta-python \
-  /mnt/piipcam/bsp/meta-openembedded/meta-filesystems \
-  /mnt/piipcam/bsp/meta-raspberrypi \
-  /mnt/piipcam/bsp/meta-piipcam \
-  "
+#BBLAYERS ?= " \
+#  /mnt/piipcam/bsp/poky/meta \
+#  /mnt/piipcam/bsp/poky/meta-poky \
+#  /mnt/piipcam/bsp/poky/meta-yocto-bsp \
+#  /mnt/piipcam/bsp/meta-openembedded/meta-oe \
+#  /mnt/piipcam/bsp/meta-openembedded/meta-networking \
+#  /mnt/piipcam/bsp/meta-openembedded/meta-python \
+#  /mnt/piipcam/bsp/meta-openembedded/meta-filesystems \
+#  /mnt/piipcam/bsp/meta-raspberrypi \
+#  /mnt/piipcam/bsp/meta-piipcam \
+#  "
