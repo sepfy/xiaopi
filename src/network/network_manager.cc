@@ -8,10 +8,7 @@
 static NetworkManager *instance_ = nullptr;
 
 NetworkManager::NetworkManager() {
-
   wifi_station_.Subscribe(&wifi_softap_);
-  wifi_station_.StartMonitor();
-  wifi_softap_.StartMonitor();
 }
 
 NetworkManager* NetworkManager::GetInstance() {
@@ -20,6 +17,11 @@ NetworkManager* NetworkManager::GetInstance() {
 
   return instance_;
 }
+
+void NetworkManager::WifiMonitor() {
+  wifi_station_.StartMonitor();
+  wifi_softap_.StartMonitor();
+};
 
 std::string NetworkManager::Scan(void) {
 

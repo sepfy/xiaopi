@@ -5,4 +5,6 @@
 #include "utility/security.h"
 #include "utility/parser.h"
 #include "utility/net.h"
+#include "utility/plog.h"
+
 #endif

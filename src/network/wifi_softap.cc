@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "utility/utility.h"
 #include "wifi_softap.h"
 
 void WifiSoftap::OnEvent(char *buf, int len) {
@@ -11,13 +12,13 @@ void WifiSoftap::OnEvent(char *buf, int len) {
   size_t reply_len;
 
   if(strstr(buf, WPA_EVENT_CONNECTED) != nullptr) {
-    fprintf(stdout, "Station is connected. Disable softap\n");
+    PLOGI("Station is connected. Disable softap");
     sprintf(cmd, "DISABLE");
     SendCommand(cmd, sizeof(cmd), reply, &reply_len);
 
   }
   else if(strstr(buf, WPA_EVENT_DISCONNECTED) != nullptr) {
-    fprintf(stdout, "Station is disconnected. Enable softap\n");
+    PLOGI("Station is disconnected. Enable softap");
     sprintf(cmd, "ENABLE");
     SendCommand(cmd, sizeof(cmd), reply, &reply_len);
   }

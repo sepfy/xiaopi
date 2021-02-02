@@ -24,7 +24,7 @@ class NetworkManager {
   std::string Scan(); 
   static NetworkManager* GetInstance();
   std::string GetNetworkStatus();
-
+  void WifiMonitor();
  private:
   WifiStation wifi_station_;
   WifiSoftap wifi_softap_;

@@ -6,6 +6,9 @@
 
 int main(void) {
 
+  NetworkManager *network_manager = NetworkManager::GetInstance();
+  network_manager->WifiMonitor();
+
   ApiEndpoint api_endpoint;
 #ifdef DEVEL
   api_endpoint.Init(8080);

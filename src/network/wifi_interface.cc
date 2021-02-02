@@ -6,6 +6,7 @@
 #include <errno.h>
 #include <pthread.h>
 
+#include "utility/utility.h"
 #include "wifi_interface.h"
 
 WifiInterface::WifiInterface(const char *interface_path) {
@@ -14,16 +15,19 @@ WifiInterface::WifiInterface(const char *interface_path) {
 
   monitor_conn_ = wpa_ctrl_open(interface_path_);
   if(monitor_conn_ == nullptr) {
-    fprintf(stderr, "Create monitor conn error\n");
+    PLOGE("Create monitor conn failed");
+    return;
   }
 
   ctrl_conn_ = wpa_ctrl_open(interface_path_);
   if(ctrl_conn_ == nullptr) {
-    fprintf(stderr, "Create ctrl conn error\n");
+    PLOGE("Create control conn failed");
+    return;
   }
 
   if(wpa_ctrl_attach(monitor_conn_) != 0) {
-    fprintf(stderr, "Monitor connection attach failed\n");
+    PLOGE("Attach monitor conn failed");
+    return;
   }
 
 }
@@ -41,18 +45,23 @@ void WifiInterface::Monitor() {
   tv.tv_sec = 5;
   tv.tv_usec = 0;
 
-  if((conn_fd = wpa_ctrl_get_fd(monitor_conn_)) < 0) {
-    fprintf(stderr, "Monitor conn does not init\n");
+  if(monitor_conn_ == nullptr) {
+    PLOGE("Monitor conn does not init");
     return;
   }
-  
-  fprintf(stdout, "Wifi station starts to monitor\n");
+
+  if((conn_fd = wpa_ctrl_get_fd(monitor_conn_)) < 0) {
+    PLOGE("Monitor conn get failed");
+    return;
+  }
+
+  PLOGI("Wifi interface %s start to monitor", interface_path_);
   while (monitor_conn_) {
 
     FD_ZERO(&rfds);
     FD_SET(conn_fd, &rfds);
     if(select(conn_fd + 1, &rfds, NULL, NULL, &tv) < 0) {
-       perror("select");
+       PLOGE("Select error");
        break;
     }
 
@@ -60,7 +69,7 @@ void WifiInterface::Monitor() {
       len = sizeof(buf) - 1;
       ret = wpa_ctrl_recv(monitor_conn_, buf, &len);
       if(ret < 0) {
-        perror("wpa_ctrl_recv");
+        PLOGE("wpa_ctrl_recv error");
         break;
       }
       buf[len] = '\0';
@@ -76,12 +85,12 @@ int WifiInterface::StartMonitor() {
   int ret = -1;
 
   if((ret = pthread_create(&tid_, NULL, WifiInterface::MonitorThread, this)) != 0) {
-    fprintf(stderr, "Thread create failed\n");
+    PLOGE("Monitor thread create failed");
     return ret;
   }
 
   if((ret = pthread_detach(tid_)) != 0) {
-    fprintf(stderr, "Thread etach failed\n");
+    PLOGE("Detach monitor thread failed");
     return ret;
   }
 
