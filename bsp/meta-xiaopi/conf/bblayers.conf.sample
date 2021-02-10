@@ -1,0 +1,18 @@
+# POKY_BBLAYERS_CONF_VERSION is increased each time build/conf/bblayers.conf
+# changes incompatibly
+POKY_BBLAYERS_CONF_VERSION = "2"
+
+BBPATH = "${TOPDIR}"
+BBFILES ?= ""
+
+#BBLAYERS ?= " \
+#  /mnt/xiaopi/bsp/poky/meta \
+#  /mnt/xiaopi/bsp/poky/meta-poky \
+#  /mnt/xiaopi/bsp/poky/meta-yocto-bsp \
+#  /mnt/xiaopi/bsp/meta-openembedded/meta-oe \
+#  /mnt/xiaopi/bsp/meta-openembedded/meta-networking \
+#  /mnt/xiaopi/bsp/meta-openembedded/meta-python \
+#  /mnt/xiaopi/bsp/meta-openembedded/meta-filesystems \
+#  /mnt/xiaopi/bsp/meta-raspberrypi \
+#  /mnt/xiaopi/bsp/meta-xiaopi \
+#  "

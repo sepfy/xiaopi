@@ -24,7 +24,7 @@ int main(int argc, char** argv) {
     exit(1);
   }
 
-  char const* descriptionString = "piipcam";
+  char const* descriptionString = "xiaopi";
 
   char const* streamName = "live";
   char const* inputFileName = "/tmp/cam.264";
