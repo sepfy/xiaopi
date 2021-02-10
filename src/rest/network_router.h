@@ -11,6 +11,7 @@ class NetworkRouter {
 
  public:
   NetworkRouter();
+  void GetNetworkStatus(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response);
   void GetWirelessConnection(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response);
   void PostWirelessConnection(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response);
   void GetHotspot(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response);

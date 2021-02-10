@@ -1,10 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "wpa_ctrl.h"
+#include <string.h>
 #include <unistd.h>
 #include <dirent.h>
 #include <errno.h>
 #include <pthread.h>
+#include <wpa_ctrl.h>
 
 #include "utility/utility.h"
 #include "wifi_interface.h"
@@ -110,9 +111,33 @@ void WifiInterface::Notify(char *buf, int len) {
   }
 }
 
+int WifiInterface::SendCommand(const char *cmd, size_t cmd_len,
+ char *reply, size_t *reply_len, const char *check) {
+
+  if(ctrl_conn_ == nullptr) {
+    PLOGE("control conn does not init");
+    return -1;
+  }
+
+  if(wpa_ctrl_request(ctrl_conn_, cmd, cmd_len, reply, reply_len, NULL) != 0) {
+    PLOGE("WPA request cmd %s failed", cmd);
+  }
+
+  if(strstr(reply, check) == NULL) {
+    PLOGE("WPA requests failed. cmd = %s, reply = %s", cmd, reply);
+    return -1;
+  }
+  return 0;
+}
+
 void WifiInterface::SendCommand(const char *cmd, size_t cmd_len, char *reply, size_t *reply_len) {
 
-  if(ctrl_conn_ != nullptr) {
-    wpa_ctrl_request(ctrl_conn_, cmd, cmd_len, reply, reply_len, NULL);
+  if(ctrl_conn_ == nullptr) {
+    PLOGE("control conn does not init");
+    return;
+  }
+
+  if(wpa_ctrl_request(ctrl_conn_, cmd, cmd_len, reply, reply_len, NULL) != 0) {
+    PLOGE("WPA request cmd %s failed", cmd);
   }
 }

@@ -10,6 +10,9 @@ namespace utility {
 class Net {
  public:
   static std::string GetIpAddr(std::string interface);
+  static std::string GetNetmask(std::string interface);
+  static std::string GetHwAddr(std::string interface);
+
 };
 
 } // namespace utility

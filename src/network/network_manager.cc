@@ -1,5 +1,6 @@
 #include <string>
 #include <fstream>
+#include <vector>
 
 #include "network/network_manager.h"
 #include "utility/utility.h"
@@ -19,93 +20,84 @@ NetworkManager* NetworkManager::GetInstance() {
 }
 
 void NetworkManager::WifiMonitor() {
+
   wifi_station_.StartMonitor();
   wifi_softap_.StartMonitor();
 };
 
-std::string NetworkManager::Scan(void) {
+std::vector<WpaInfo> NetworkManager::Scan(void) {
 
-  json response = json::array();
-  std::size_t start, end;
-  std::string cmd = "iw " + interface_ + " scan";
-  std::string result = utility::Caller::PipeCall(cmd);
-  auto hotspots = utility::Parser::Split(result, "(on ");
+  std::string scan_results;
+  scan_results = wifi_station_.GetScanResults();
+  PLOGI("%s", scan_results.c_str());
 
-  std::string ssid;
-  std::string security;
-  std::string strength;
-  std::string status;
-  json j;
-  int sig;
+  auto wpa_infos_str = utility::Parser::Split(scan_results, "\n");
+  std::vector<WpaInfo> wpa_infos;
 
-  for(int i = 1; i < hotspots.size(); i++) {
-    start = hotspots[i].find("SSID:") + 6;
-    if(start != std::string::npos) {
-      end = hotspots[i].substr(start).find("\n");
-      ssid = hotspots[i].substr(start, end);
-    }
-
-    start = hotspots[i].find("signal:") + 8;
-    if(start != std::string::npos) {
-      end = hotspots[i].substr(start).find("\n");
-      sig = std::stof(hotspots[i].substr(start, end));
-      if(sig > -50)
-        strength = "4";
-      else if(sig > -70)
-        strength = "3";
-      else if(sig > -80)
-        strength = "2";
-      else
-        strength = "1";
-
-    }
-
-    start = hotspots[i].find("PSK");
-    if(start != std::string::npos) {
-      security = "WPA-PSK";
-    }
-    else {
-      security = "None";
-    }
-
-    if(hotspots[i].find("associated") != std::string::npos) {
-      status = "associated";
-    }
-    else {
-      status = "None";
-    }
-
-    j = {{"ssid", ssid}, {"strength", strength}, {"security", security}, {"status", status}};
-    response.push_back(j);
+  for(int i = 1; i < wpa_infos_str.size() - 1; ++i) {
+    auto wpa_info_str = utility::Parser::Split(wpa_infos_str[i], "\t");
+    if(wpa_info_str.size() < 5)
+      break;
+    WpaInfo wpa_info;
+    wpa_info.freq = std::stoi(wpa_info_str[1]);
+    wpa_info.signal = std::stoi(wpa_info_str[2]);
+    wpa_info.bssid = wpa_info_str[0];
+    wpa_info.flags = wpa_info_str[3];
+    wpa_info.ssid = wpa_info_str[4];
+    wpa_infos.push_back(wpa_info);    
   }
-
-  return response.dump();
+  return wpa_infos;
 }
 
-bool NetworkManager::ApplyWpaConfig(std::string ssid, std::string psk, std::string security) {
+WpaStatus NetworkManager::GetWpaStatus() {
 
-  std::string config;
-  char buf[512] = {0};
-  sprintf(buf, "network={\n  ssid=\"%s\"\n  psk=\"%s\"\n  key_mgmt=%s\n}\n",
-   ssid.c_str(), psk.c_str(), security.c_str());
+  WpaStatus wpa_status;
+  wpa_status.freq = 0;
 
-  std::ofstream wpa_config;
-  wpa_config.open("/etc/wpa_supplicant.conf", std::ios::out);
+  std::string wpa_status_str = wifi_station_.GetStatus();
 
-  if(wpa_config.is_open()) {
-    wpa_config << buf;
-    wpa_config.close();
-    // TODO: Handle WiFi channel for sta + ap mode
-    system("systemctl disable hostapd");
-    system("systemctl stop hostapd");
-    system("systemctl restart wpa_supplicant");
-    return true;
+  auto wpa_status_details = utility::Parser::Split(wpa_status_str, "\n");
+
+  for(int i = 0; i < wpa_status_details.size(); ++i) {
+    auto wpa_status_detail = utility::Parser::Split(wpa_status_details[i], "=");
+    if(wpa_status_detail.size() == 2) {
+      if(wpa_status_detail[0] == "freq")
+        wpa_status.freq = std::stoi(wpa_status_detail[1]);
+      else if(wpa_status_detail[0] == "ssid") 
+        wpa_status.ssid = wpa_status_detail[1];
+      else if(wpa_status_detail[0] == "bssid") 
+        wpa_status.bssid = wpa_status_detail[1];
+      else if(wpa_status_detail[0] == "key_mgmt") 
+        wpa_status.key_mgmt = wpa_status_detail[1];
+      else if(wpa_status_detail[0] == "wpa_state")
+        wpa_status.wpa_state = wpa_status_detail[1];
+
+    }
   }
-  else 
-    return false;
+  return wpa_status;
 }
 
-std::string NetworkManager::GetNetworkStatus(void) {
-  return utility::Net::GetIpAddr(interface_);
+void NetworkManager::AddNetwork(std::string ssid, std::string psk, std::string security) {
+  wifi_station_.AddNetwork(ssid, psk, security);
+}
+
+std::string NetworkManager::GetStationStatus(void) {
+  return utility::Net::GetIpAddr("wlan0");
+}
+
+std::string NetworkManager::GetSoftapStatus(void) {
+  return utility::Net::GetIpAddr("wlan1");
+}
+
+std::string NetworkManager::GetUsbEthernetStatus(void) {
+  return utility::Net::GetIpAddr("usb0");
+}
+
+std::string NetworkManager::GetStationNetmask(void) {
+  return utility::Net::GetNetmask("wlan0");
+}
+
+std::string NetworkManager::GetStationHwAddr(void) {
+  return utility::Net::GetHwAddr("wlan0");
 }
 

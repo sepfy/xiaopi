@@ -6,5 +6,6 @@
 #include "utility/parser.h"
 #include "utility/net.h"
 #include "utility/plog.h"
+#include "utility/time.h"
 
-#endif
+#endif // UTILITY_UTILITY_H_

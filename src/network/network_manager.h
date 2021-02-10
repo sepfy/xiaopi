@@ -2,10 +2,19 @@
 #define NETWORK_NETWORK_MANAGER_H_
 
 #include <string>
+#include <vector>
 #include <pthread.h>
 
 #include "wifi_station.h"
 #include "wifi_softap.h"
+
+typedef struct {
+  std::string bssid;
+  std::string ssid;
+  std::string key_mgmt;
+  std::string wpa_state;
+  int freq;
+} WpaStatus;
 
 typedef struct NetworkInterface_ {
 
@@ -16,14 +25,29 @@ typedef struct NetworkInterface_ {
 
 } NetworkInterface;
 
+
+typedef struct {
+  int freq;
+  int signal;
+  std::string bssid;
+  std::string flags;
+  std::string ssid;
+} WpaInfo; 
+
 class NetworkManager {
 
  public:
   std::string GetInterfaces();
-  bool ApplyWpaConfig(std::string ssid, std::string psk, std::string security);
-  std::string Scan(); 
+  void AddNetwork(std::string ssid, std::string psk, std::string security);
+  std::vector<WpaInfo> Scan();
+  WpaStatus GetWpaStatus(); 
   static NetworkManager* GetInstance();
   std::string GetNetworkStatus();
+  std::string GetStationStatus();
+  std::string GetSoftapStatus();
+  std::string GetUsbEthernetStatus();
+  std::string GetStationNetmask();
+  std::string GetStationHwAddr();
   void WifiMonitor();
  private:
   WifiStation wifi_station_;

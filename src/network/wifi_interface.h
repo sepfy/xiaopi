@@ -15,6 +15,7 @@ class WifiInterface {
   static void* MonitorThread(void *context);
 
   void SendCommand(const char *cmd, size_t cmd_len, char *reply, size_t *reply_len); 
+  int SendCommand(const char *cmd, size_t cmd_len, char *reply, size_t *reply_len, const char *check); 
   void Subscribe(WifiEventObserver *event_observer) { event_observer_ = event_observer; };
   void Unsubscribe() { event_observer_ = nullptr; }
   void Notify(char *buf, int len);

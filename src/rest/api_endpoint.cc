@@ -41,9 +41,18 @@ void ApiEndpoint::SetupRoutes() {
   Pistache::Rest::Routes::Get(router_, "/:/:", Pistache::Rest::Routes::bind(&FileRouter::Get, file_router_));
   Pistache::Rest::Routes::Get(router_, "/", Pistache::Rest::Routes::bind(&FileRouter::GetIndex, file_router_));
 
+  Pistache::Rest::Routes::Put(router_, "/api/v1/system/remote/deviceKey", Pistache::Rest::Routes::bind(&SystemRouter::PutRemoteDeviceKey, system_router_));
+  Pistache::Rest::Routes::Get(router_, "/api/v1/system/remote/deviceKey", Pistache::Rest::Routes::bind(&SystemRouter::GetRemoteDeviceKey, system_router_));
+
+  Pistache::Rest::Routes::Put(router_, "/api/v1/system/remote/enable", Pistache::Rest::Routes::bind(&SystemRouter::PutRemoteEnable, system_router_));
+  Pistache::Rest::Routes::Get(router_, "/api/v1/system/remote/enable", Pistache::Rest::Routes::bind(&SystemRouter::GetRemoteEnable, system_router_));
+
+  Pistache::Rest::Routes::Get(router_, "/api/v1/system/remote/deviceCode", Pistache::Rest::Routes::bind(&SystemRouter::GetRemoteDeviceCode, system_router_));
+
   Pistache::Rest::Routes::Post(router_, "/api/v1/account/login", Pistache::Rest::Routes::bind(&AccountRouter::PostLogin, account_router_));
   Pistache::Rest::Routes::Put(router_, "/api/v1/account/:username", Pistache::Rest::Routes::bind(&AccountRouter::Put, account_router_));
 
+  Pistache::Rest::Routes::Get(router_, "/api/v1/network/status", Pistache::Rest::Routes::bind(&NetworkRouter::GetNetworkStatus, network_router_));
   Pistache::Rest::Routes::Get(router_, "/api/v1/network/hotspot", Pistache::Rest::Routes::bind(&NetworkRouter::GetHotspot, network_router_));
   Pistache::Rest::Routes::Get(router_, "/api/v1/network/wireless/connection", Pistache::Rest::Routes::bind(&NetworkRouter::GetWirelessConnection, network_router_));
   Pistache::Rest::Routes::Post(router_, "/api/v1/network/wireless/connection", Pistache::Rest::Routes::bind(&NetworkRouter::PostWirelessConnection, network_router_));

@@ -12,7 +12,9 @@ class SystemManager {
  public:
   static SystemManager* GetInstance();
   void UpdateConfig(std::string key, std::string value);
+  void UpdateConfig(std::string key, bool value);
   std::string ReadConfig(std::string key);
+  void ReadConfig(std::string key, bool *value);
   std::string hmac() { return hmac_; }
   void ResetToDefault();
   void Init();

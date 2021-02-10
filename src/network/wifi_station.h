@@ -1,6 +1,8 @@
 #ifndef NETWORK_WIFI_STATION_H_
 #define NETWORK_WIFI_STATION_H_
 
+#include <string>
+
 #include "wifi_interface.h"
 #include "wifi_event_observer.h"
 
@@ -9,8 +11,10 @@
 class WifiStation : public WifiInterface {
 
  public:
-  WifiStation() : WifiInterface(STATION_CTRL_INTERFACE) {};
-
+  WifiStation();
+  std::string GetScanResults();
+  std::string GetStatus();
+  void AddNetwork(std::string ssid, std::string psk, std::string security);
 };
 
 

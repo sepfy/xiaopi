@@ -7,7 +7,7 @@
 #include "system/system_manager.h"
 #include "utility/security.h"
 
-#define INIT_CONIFG "{\"username\": \"admin\", \"password\": \"12345678\"}"
+#define INIT_CONIFG "{\"username\": \"admin\", \"password\": \"12345678\", \"remoteEnable\": \"false\", \"deviceKey\": \"12345678\", \"deviceCode\": \"testdevice\"}"
 
 SystemManager* SystemManager::instance_ = nullptr;
 
@@ -39,6 +39,15 @@ void SystemManager::Init() {
 
 }
 
+
+void SystemManager::UpdateConfig(std::string key, bool value) {
+
+  system_config_[key] = value;
+  std::ofstream o(config_path_);
+  o << system_config_ << std::endl;
+  o.close();
+}
+
 void SystemManager::UpdateConfig(std::string key, std::string value) {
 
   system_config_[key] = value;
@@ -48,7 +57,14 @@ void SystemManager::UpdateConfig(std::string key, std::string value) {
 }
 
 std::string SystemManager::ReadConfig(std::string key) {
+  // TODO: Check key is empty
   return system_config_[key];
+}
+
+
+void SystemManager::ReadConfig(std::string key, bool *value) {
+  // TODO: Check key is empty
+  *value = system_config_[key];
 }
 
 void SystemManager::ResetToDefault() {
