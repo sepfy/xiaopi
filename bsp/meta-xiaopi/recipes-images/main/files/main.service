@@ -1,5 +1,6 @@
 [Unit]
 Description=Main program
+After=initscript.service
 
 [Service]
 Type=simple
