@@ -7,6 +7,8 @@ Type=forking
 PIDFile=/run/hostapd.pid
 ExecStart=/usr/sbin/hostapd /etc/hostapd.conf -P /run/hostapd.pid -B
 Restart=always
+RestartSec=2
+StartLimitInterval=0
 
 [Install]
 WantedBy=multi-user.target

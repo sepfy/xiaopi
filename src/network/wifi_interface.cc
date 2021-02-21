@@ -77,6 +77,7 @@ void WifiInterface::Monitor() {
       //printf("%s\n", buf);
       Notify(buf, len);
     }
+    sleep(1);
   }
   tid_ = -1;
 }

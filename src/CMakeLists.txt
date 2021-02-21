@@ -1,14 +1,14 @@
 cmake_minimum_required(VERSION 3.1)
 project(main)
+
 add_subdirectory(rest)
 add_subdirectory(network)
 add_subdirectory(system)
 add_subdirectory(utility)
+add_subdirectory(hal)
+add_subdirectory(media)
 
-include_directories(../3rdparty/json/include)
-include_directories(../3rdparty/pistache/include)
 include_directories(./)
-link_directories(../3rdparty/pistache/build/src)
 
 #file(GLOB APP_SOURCES "*.cc")
 #add_library(rest ${APP_SOURCES})
@@ -18,8 +18,9 @@ if(UNITTEST_ENABLE)
   add_definitions(-DDEVEL)
 endif(UNITTEST_ENABLE)                                        
 
+set(CMAKE_EXE_LINKER_FLAGS "")
 add_executable(main main.cc)
-target_link_libraries(main rest system_manager network_manager utility ssl crypto)
+target_link_libraries(main rest system_manager network_manager hal media utility ssl crypto avformat avcodec avutil mmal_core mmal_util mmal_vc_client vcos bcm_host)
 
 install(TARGETS main
     DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/

@@ -6,6 +6,8 @@ After=initscript.service
 Type=simple
 ExecStart=/usr/bin/main
 Restart=always
+RestartSec=2
+StartLimitInterval=0
 
 [Install]
 WantedBy=multi-user.target
