@@ -11,7 +11,7 @@
 #include "media/recorder.h"
 #include "hal/mmal_capturer.h"
 
-void* capture(void* data) {
+void* recorder_thread(void* data) {
 
   Recorder recorder;
   struct stat st = {0};
@@ -19,10 +19,8 @@ void* capture(void* data) {
     mkdir("/home/root/", 0700);
   }
 
-  while(1) {
-    recorder.Start();
-    sleep(1);
-  }
+  recorder.Start();
+
   pthread_exit(NULL);
 }
 
@@ -33,10 +31,10 @@ int main(void) {
 
   if(pid == 0) {
     MmalCapturer mmal_capturer;
-//    pthread_t t;
-//    pthread_create(&t, NULL, capture, NULL);
+    pthread_t t;
+    pthread_create(&t, NULL, recorder_thread, NULL);
+    pthread_detach(t);
     mmal_capturer.Start();
-
   }
   else if (pid > 0) {
     NetworkManager *network_manager = NetworkManager::GetInstance();
@@ -52,7 +50,6 @@ int main(void) {
   else {
     PLOGE("Forks error");
   }
-
 
   return 0;
 }

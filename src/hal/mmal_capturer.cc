@@ -12,22 +12,8 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include "bcm_host.h"
-#include "interface/vcos/vcos.h"
-#include "interface/mmal/mmal.h"
-#include "interface/mmal/util/mmal_default_components.h"
-#include "interface/mmal/util/mmal_connection.h"
-#include "interface/mmal/util/mmal_util_params.h"
-#include "interface/mmal/util/mmal_util.h"
 
 #include "hal/mmal_capturer.h"
-#include "queue.h"
-
-pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-
-es_queue *g_es_queue;
-int g_es_fd = 0;
-const char *g_es_fifo_path = "/tmp/cam.264";  
 
 #define MMAL_CAMERA_PREVIEW_PORT 0
 #define MMAL_CAMERA_VIDEO_PORT 1
@@ -37,54 +23,13 @@ const char *g_es_fifo_path = "/tmp/cam.264";
 #define VIDEO_WIDTH 1920
 #define VIDEO_HEIGHT 1080
 
-
-typedef struct {
-    MMAL_COMPONENT_T *camera;
-    MMAL_COMPONENT_T *encoder;
-    MMAL_COMPONENT_T *preview;
-
-    MMAL_PORT_T *camera_video_port;
-    MMAL_POOL_T *camera_video_port_pool;
-    MMAL_PORT_T *encoder_input_port;
-    MMAL_POOL_T *encoder_input_pool;
-    MMAL_PORT_T *encoder_output_port;
-    MMAL_POOL_T *encoder_output_pool;
-
-    VCOS_SEMAPHORE_T complete_semaphore;
-    
-} PORT_USERDATA;
-
-PORT_USERDATA userdata;
-MMAL_STATUS_T status;
-
-
-void* write_es_queue_thread(void *data) {
-
-  int ret;
-  while(1) {
-    char buf[64];
-    usleep(33000);
-
-    pthread_mutex_lock(&mutex);
-    es_data *data = dequeue_es_data(g_es_queue);
-    pthread_mutex_unlock(&mutex);
-
-    if(g_es_fd != 0) {
-      if(data != NULL)
-        ret = write(g_es_fd, data->buffer, data->size);
-      if(ret < 0) {
-        perror("write error");
-      }
-    }
-    free_es_data(data);
-  }    
-}
-
-
+#if 0
 
 void sigpipe_handler(int unused) {
   close(g_es_fd);
   g_es_fd = 0;
+
+  write_header = 1;
   mmal_port_pool_destroy(userdata.encoder_input_port, userdata.encoder_input_pool);
   mmal_port_pool_destroy(userdata.encoder_output_port, userdata.encoder_output_pool);
   mmal_port_pool_destroy(userdata.camera_video_port, userdata.camera_video_port_pool);
@@ -92,7 +37,7 @@ void sigpipe_handler(int unused) {
   mmal_component_destroy(userdata.camera);
   mmal_component_destroy(userdata.preview);
 }
-
+#endif
 
 int fill_port_buffer(MMAL_PORT_T *port, MMAL_POOL_T *pool) {
   int q;
@@ -108,6 +53,7 @@ int fill_port_buffer(MMAL_PORT_T *port, MMAL_POOL_T *pool) {
       fprintf(stderr, "Unable to send a buffer to port (%d)\n", q);
     }
   }
+  return 0;
 }
 
 static void camera_video_buffer_callback(MMAL_PORT_T *port, MMAL_BUFFER_HEADER_T *buffer) {
@@ -155,14 +101,9 @@ static void encoder_output_buffer_callback(MMAL_PORT_T *port, MMAL_BUFFER_HEADER
   PORT_USERDATA *userdata = (PORT_USERDATA *) port->userdata;
   MMAL_POOL_T *pool = userdata->encoder_output_pool;
 
-  if(g_es_fd) {
-    mmal_buffer_header_mem_lock(buffer);
-    es_data *es_data = create_es_data(buffer->length, buffer->data);
-    pthread_mutex_lock(&mutex);
-    enqueue_es_data(g_es_queue, es_data);
-    pthread_mutex_unlock(&mutex);
-    mmal_buffer_header_mem_unlock(buffer);
-  }
+  MmalCapturer *mmal_capturer = (MmalCapturer*)userdata->mmal_capturer;
+
+  mmal_capturer->Broadcast(buffer->data, buffer->length);
 
   mmal_buffer_header_release(buffer);
     
@@ -181,7 +122,7 @@ static void encoder_output_buffer_callback(MMAL_PORT_T *port, MMAL_BUFFER_HEADER
   }
 }
 
-int init_camera(PORT_USERDATA *userdata) {
+int MmalCapturer::InitMmalCamera() {
     MMAL_STATUS_T status;
     MMAL_COMPONENT_T *camera = 0;
     MMAL_ES_FORMAT_T *format;
@@ -195,8 +136,8 @@ int init_camera(PORT_USERDATA *userdata) {
         fprintf(stderr, "Error: create camera %x\n", status);
         return -1;
     }
-    userdata->camera = camera;
-    userdata->camera_video_port = camera->output[MMAL_CAMERA_VIDEO_PORT];
+    userdata_.camera = camera;
+    userdata_.camera_video_port = camera->output[MMAL_CAMERA_VIDEO_PORT];
 
     camera_preview_port = camera->output[MMAL_CAMERA_PREVIEW_PORT];
     camera_video_port = camera->output[MMAL_CAMERA_VIDEO_PORT];
@@ -263,8 +204,8 @@ int init_camera(PORT_USERDATA *userdata) {
     }
 
     camera_video_port_pool = (MMAL_POOL_T *) mmal_port_pool_create(camera_video_port, camera_video_port->buffer_num, camera_video_port->buffer_size);
-    userdata->camera_video_port_pool = camera_video_port_pool;
-    camera_video_port->userdata = (struct MMAL_PORT_USERDATA_T *) userdata;
+    userdata_.camera_video_port_pool = camera_video_port_pool;
+    camera_video_port->userdata = (struct MMAL_PORT_USERDATA_T *) &userdata_;
 
 
     status = mmal_port_enable(camera_video_port, camera_video_buffer_callback);
@@ -280,7 +221,7 @@ int init_camera(PORT_USERDATA *userdata) {
         return -1;
     }
 
-    fill_port_buffer(userdata->camera_video_port, userdata->camera_video_port_pool);
+    fill_port_buffer(userdata_.camera_video_port, userdata_.camera_video_port_pool);
 
     if (mmal_port_parameter_set_boolean(camera_video_port, MMAL_PARAMETER_CAPTURE, 1) != MMAL_SUCCESS) {
         printf("%s: Failed to start capture\n", __func__);
@@ -290,7 +231,8 @@ int init_camera(PORT_USERDATA *userdata) {
     return 0;
 }
 
-int init_encoder(PORT_USERDATA *userdata) {
+int MmalCapturer::InitMmalEncoder() {
+
     MMAL_STATUS_T status;
     MMAL_COMPONENT_T *encoder = 0;
     MMAL_PORT_T *preview_input_port = NULL;
@@ -307,10 +249,10 @@ int init_encoder(PORT_USERDATA *userdata) {
 
     encoder_input_port = encoder->input[0];
     encoder_output_port = encoder->output[0];
-    userdata->encoder_input_port = encoder_input_port;
-    userdata->encoder_output_port = encoder_input_port;
+    userdata_.encoder_input_port = encoder_input_port;
+    userdata_.encoder_output_port = encoder_input_port;
 
-    mmal_format_copy(encoder_input_port->format, userdata->camera_video_port->format);
+    mmal_format_copy(encoder_input_port->format, userdata_.camera_video_port->format);
     encoder_input_port->buffer_size = encoder_input_port->buffer_size_recommended;
     encoder_input_port->buffer_num = 2;
 
@@ -355,8 +297,8 @@ int init_encoder(PORT_USERDATA *userdata) {
     fprintf(stderr, "encoder output buffer_num = %d\n", encoder_output_port->buffer_num);
 
     encoder_input_port_pool = (MMAL_POOL_T *) mmal_port_pool_create(encoder_input_port, encoder_input_port->buffer_num, encoder_input_port->buffer_size);
-    userdata->encoder_input_pool = encoder_input_port_pool;
-    encoder_input_port->userdata = (struct MMAL_PORT_USERDATA_T *) userdata;
+    userdata_.encoder_input_pool = encoder_input_port_pool;
+    encoder_input_port->userdata = (struct MMAL_PORT_USERDATA_T *) &userdata_;
     status = mmal_port_enable(encoder_input_port, encoder_input_buffer_callback);
     if (status != MMAL_SUCCESS) {
         fprintf(stderr, "Error: unable to enable encoder input port (%u)\n", status);
@@ -365,8 +307,8 @@ int init_encoder(PORT_USERDATA *userdata) {
     fprintf(stderr, "encoder input pool has been created\n");
 
     encoder_output_port_pool = (MMAL_POOL_T *) mmal_port_pool_create(encoder_output_port, encoder_output_port->buffer_num, encoder_output_port->buffer_size);
-    userdata->encoder_output_pool = encoder_output_port_pool;
-    encoder_output_port->userdata = (struct MMAL_PORT_USERDATA_T *) userdata;
+    userdata_.encoder_output_pool = encoder_output_port_pool;
+    encoder_output_port->userdata = (struct MMAL_PORT_USERDATA_T *) &userdata_;
 
     status = mmal_port_enable(encoder_output_port, encoder_output_buffer_callback);
     if (status != MMAL_SUCCESS) {
@@ -384,48 +326,36 @@ int init_encoder(PORT_USERDATA *userdata) {
 
 
 
-int start_enqueue_buffer() {
+int MmalCapturer::InitMmal() {
 
-  memset(&userdata, 0, sizeof (PORT_USERDATA));
+  memset(&userdata_, 0, sizeof (PORT_USERDATA));
 
   bcm_host_init();
     
-  if (init_camera(&userdata)) {
-      fprintf(stderr, "Failed to init camera %x\n", status);
+  if (InitMmalCamera()) {
+      fprintf(stderr, "Failed to init camera \n");
       return -1;
   }
 
-  if (init_encoder(&userdata)) {
-      fprintf(stderr, "Failed to init encoder %x\n", status);
+  if (InitMmalEncoder()) {
+      fprintf(stderr, "Failed to init encoder \n");
       return -1;
   }
 
-  vcos_semaphore_create(&userdata.complete_semaphore, "mmal_opencv_video", 0);
+  vcos_semaphore_create(&userdata_.complete_semaphore, "mmal_opencv_video", 0);
+  userdata_.mmal_capturer = this; 
 
+  return 0;
 }
 void MmalCapturer::Start(void) {
   printf("Resolution = (%d, %d)\n", VIDEO_WIDTH, VIDEO_HEIGHT);
-  g_es_queue = create_es_queue();
-  mkfifo(g_es_fifo_path, 0666); 
 
-  struct sigaction act;
-  act.sa_handler = sigpipe_handler;
-  sigaction(SIGPIPE, &act, NULL);
-  pthread_t t;
-  pthread_create(&t, NULL, write_es_queue_thread, NULL);
-
-
+  InitMmal();
+  AddReceiver("/tmp/cam.264"); 
+  AddReceiver("/tmp/record.264"); 
+  Init();
   while(1) {
-
-    if(!g_es_fd) {
-      g_es_fd = open(g_es_fifo_path, O_WRONLY); 
-      printf("Connect to client %d\n", g_es_fd);
-      start_enqueue_buffer();
-    }
-
-
     sleep(1);
   }
-//  return 0;
 }
 
