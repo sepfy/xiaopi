@@ -14,21 +14,22 @@ class SystemManager {
   void UpdateConfig(std::string key, std::string value);
   void UpdateConfig(std::string key, bool value);
   std::string ReadConfig(std::string key);
-  void ReadConfig(std::string key, bool *value);
+  bool ReadConfig(std::string key, bool *value);
   std::string hmac() { return hmac_; }
   void ResetToDefault();
   void Init();
+
  private:
   SystemManager();
   json system_config_;
-  std::string key_ = "xiaopi";
+  std::string salt_ = "xiaopi";
   std::string hmac_ = "";
   static SystemManager *instance_;
 
 #ifdef DEVEL
   std::string config_path_ = "./config.json";
 #else
-  std::string config_path_ = "/etc/config.json";
+  std::string config_path_ = "/opt/xiaopi/config.json";
 #endif
 };
 

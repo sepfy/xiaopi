@@ -7,7 +7,13 @@
 #include "system/system_manager.h"
 #include "utility/security.h"
 
-#define INIT_CONIFG "{\"username\": \"admin\", \"password\": \"12345678\", \"remoteEnable\": \"false\", \"deviceKey\": \"12345678\", \"deviceCode\": \"testdevice\"}"
+json kDefaultConfig = {
+ {"username", "admin"},
+ {"password", "password"},
+ {"remoteEnable", false},
+ {"deviceCode", ""},
+ {"deviceKey", "000000"},
+};
 
 SystemManager* SystemManager::instance_ = nullptr;
 
@@ -25,9 +31,13 @@ SystemManager::SystemManager() {
 
 void SystemManager::Init() {
 
+#ifdef DEVEL
+  remove(config_path_.c_str());
+#endif
+
   if(access(config_path_.c_str(), F_OK ) == -1) {
     std::ofstream o(config_path_);
-    o << INIT_CONIFG << std::endl;
+    o << kDefaultConfig << std::endl;
     o.close();
   }
 
@@ -35,7 +45,7 @@ void SystemManager::Init() {
   i >> system_config_;
   i.close();
 
-  hmac_ = utility::Security::Hmac(system_config_["password"], key_);
+  hmac_ = utility::Security::Hmac(system_config_["password"], salt_);
 
 }
 
@@ -57,14 +67,21 @@ void SystemManager::UpdateConfig(std::string key, std::string value) {
 }
 
 std::string SystemManager::ReadConfig(std::string key) {
-  // TODO: Check key is empty
-  return system_config_[key];
+  if(system_config_[key] != nullptr)
+    return system_config_[key];
+  else
+    return "";
 }
 
 
-void SystemManager::ReadConfig(std::string key, bool *value) {
+bool SystemManager::ReadConfig(std::string key, bool *value) {
   // TODO: Check key is empty
-  *value = system_config_[key];
+  if(system_config_[key] != nullptr) {
+    *value = system_config_[key];
+    return 1;
+  }
+  else
+    return 0;
 }
 
 void SystemManager::ResetToDefault() {

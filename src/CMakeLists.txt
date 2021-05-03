@@ -6,7 +6,6 @@ add_subdirectory(network)
 add_subdirectory(system)
 add_subdirectory(utility)
 add_subdirectory(hal)
-add_subdirectory(media)
 
 include_directories(./)
 
@@ -20,7 +19,13 @@ endif(UNITTEST_ENABLE)
 
 set(CMAKE_EXE_LINKER_FLAGS "")
 add_executable(main main.cc)
-target_link_libraries(main rest system_manager network_manager hal media utility ssl crypto avformat avcodec avutil mmal_core mmal_util mmal_vc_client vcos bcm_host)
+
+if(UNITTEST_ENABLE)
+target_link_libraries(main rest system_manager network_manager hal utility ssl crypto)
+else()
+target_link_libraries(main rest system_manager network_manager hal utility ssl crypto mmal_core mmal_util mmal_vc_client vcos bcm_host)
+
+endif(UNITTEST_ENABLE)
 
 install(TARGETS main
     DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/

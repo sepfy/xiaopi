@@ -5,7 +5,7 @@ project(system_manager)
 option(UNITTEST_ENABLE "Build the unittest code" OFF)
 
 file(GLOB LIB_SRC "*.cc")
-file(GLOB UNITTEST_SRC "*unittest.cc*")
+file(GLOB UNITTEST_SRC "*test.cc*")
 list(REMOVE_ITEM LIB_SRC ${UNITTEST_SRC})
 
 if(UNITTEST_ENABLE)

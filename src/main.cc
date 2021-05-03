@@ -8,21 +8,10 @@
 #include "system/system_manager.h"
 #include "rest/api_endpoint.h"
 #include "utility/utility.h"
-#include "media/recorder.h"
+
+#ifndef DEVEL
 #include "hal/mmal_capturer.h"
-
-void* recorder_thread(void* data) {
-
-  Recorder recorder;
-  struct stat st = {0};
-  if(stat("/home/root/", &st) == -1) {
-    mkdir("/home/root/", 0700);
-  }
-
-  recorder.Start();
-
-  pthread_exit(NULL);
-}
+#endif
 
 int main(void) {
 
@@ -30,11 +19,10 @@ int main(void) {
   pid = fork();
 
   if(pid == 0) {
+#ifndef DEVEL
     MmalCapturer mmal_capturer;
-    pthread_t t;
-    pthread_create(&t, NULL, recorder_thread, NULL);
-    pthread_detach(t);
     mmal_capturer.Start();
+#endif
   }
   else if (pid > 0) {
     NetworkManager *network_manager = NetworkManager::GetInstance();

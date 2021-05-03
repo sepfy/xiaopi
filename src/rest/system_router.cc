@@ -2,6 +2,7 @@
 #include <pistache/router.h>
 #include <pistache/endpoint.h>
 
+#include "utility/utility.h"
 #include "rest/api_endpoint.h"
 #include "rest/system_router.h"
 #include "system/system_manager.h"
@@ -22,15 +23,20 @@ void SystemRouter::PutRemoteDeviceKey(const Pistache::Rest::Request& request, Pi
   body = request.body();
   j = json::parse(body);
 
-  std::string device_key = j["deviceKey"];
 
-  if(device_key == "") {
-    response.send(Pistache::Http::Code::Not_Acceptable, "Device key is empty");
+  PLOGI("%s",j.dump().c_str());
+  if(j["deviceKey"] != nullptr) {
+    std::string device_key = j["deviceKey"];
+    if(device_key.length() != 6) {
+      response.send(Pistache::Http::Code::Not_Acceptable, "Device key must be 6 characters");
+      return;
+    }
+    SystemManager::GetInstance()->UpdateConfig("deviceKey", device_key);
+    response.send(Pistache::Http::Code::Ok, "");
     return;
   }
 
-  SystemManager::GetInstance()->UpdateConfig("deviceKey", device_key);
-  response.send(Pistache::Http::Code::Ok, "");
+  response.send(Pistache::Http::Code::Not_Acceptable, "Device key is empty");
 }
 
 void SystemRouter::PutRemoteEnable(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response) {
@@ -45,8 +51,8 @@ void SystemRouter::PutRemoteEnable(const Pistache::Rest::Request& request, Pista
 
   body = request.body();
   j = json::parse(body);
-  std::cout << j << std::endl;
   SystemManager::GetInstance()->UpdateConfig("remoteEnable", (bool)j["remoteEnable"]);
+  PLOGI("%s",j.dump().c_str());
   response.send(Pistache::Http::Code::Ok, "");
 }
 
@@ -59,7 +65,7 @@ void SystemRouter::GetRemoteDeviceKey(const Pistache::Rest::Request& request, Pi
 
   json j;
   j["deviceKey"] = SystemManager::GetInstance()->ReadConfig("deviceKey");
-  std::cout << j.dump() << std::endl;
+  PLOGI("%s",j.dump().c_str());
   response.send(Pistache::Http::Code::Ok, j.dump());
 }
 
@@ -73,7 +79,7 @@ void SystemRouter::GetRemoteEnable(const Pistache::Rest::Request& request, Pista
   bool value;
   SystemManager::GetInstance()->ReadConfig("remoteEnable", &value);
   j["remoteEnable"] = value;
-  std::cout << j.dump() << std::endl;
+  PLOGI("%s",j.dump().c_str());
   response.send(Pistache::Http::Code::Ok, j.dump());
 }
 
@@ -84,7 +90,7 @@ void SystemRouter::GetRemoteDeviceCode(const Pistache::Rest::Request& request, P
   }
   json j;
   j["deviceCode"] = SystemManager::GetInstance()->ReadConfig("deviceCode");
-  std::cout << j.dump() << std::endl;
+  PLOGI("%s",j.dump().c_str());
   response.send(Pistache::Http::Code::Ok, j.dump());
 }
 

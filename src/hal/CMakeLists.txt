@@ -5,6 +5,7 @@ project(hal)
 option(UNITTEST_ENABLE "Build the unittest code" OFF)
 
 file(GLOB LIB_SRC "*.cc")
+file(GLOB MMAL "*mmal*")
 #file(GLOB UNITTEST_SRC "*unittest.cc*")
 #list(REMOVE_ITEM LIB_SRC ${UNITTEST_SRC})
 
@@ -15,9 +16,9 @@ link_directories(../3rdparty/pistache/build/src)
 
 if(UNITTEST_ENABLE)
   add_definitions(-DDEVEL)
+  list(REMOVE_ITEM LIB_SRC ${MMAL})
 endif(UNITTEST_ENABLE)
 
-set(CMAKE_CXX_FLAGS "")
 add_library(hal ${LIB_SRC})
 #target_link_libraries(capturer)
 

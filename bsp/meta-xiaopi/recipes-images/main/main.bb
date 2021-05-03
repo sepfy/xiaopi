@@ -24,11 +24,15 @@ SYSTEMD_SERVICE_${PN} = "main.service"
 SYSTEMD_AUTO_ENABLE = "enable"
 SYSTEMD_AUTO_ENABLE_${PN} = "enable"
 INSANE_SKIP_${PN} = "ldflags"
+FILES_${PN} += "/opt/xiaopi"
+
+# -Wl,--as-needed cause that open pi camera failed
+TARGET_LDFLAGS = "-Wl,-O1 -Wl,--hash-style=gnu"
 
 do_install_append () {
 
-    install -d ${D}${sysconfdir}
-    cp -r ${WORKDIR}/dist ${D}${sysconfdir}
+    install -d ${D}/opt/xiaopi/
+    cp -r ${WORKDIR}/dist ${D}/opt/xiaopi/
 
     install -d ${D}${systemd_unitdir}/system/
     install -m 0644 ${WORKDIR}/main.service ${D}${systemd_unitdir}/system
