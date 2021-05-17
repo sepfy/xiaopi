@@ -6,6 +6,7 @@ add_subdirectory(network)
 add_subdirectory(system)
 add_subdirectory(utility)
 add_subdirectory(hal)
+add_subdirectory(rtc)
 
 include_directories(./)
 
@@ -23,7 +24,7 @@ add_executable(main main.cc)
 if(UNITTEST_ENABLE)
 target_link_libraries(main rest system_manager network_manager hal utility ssl crypto)
 else()
-target_link_libraries(main rest system_manager network_manager hal utility ssl crypto mmal_core mmal_util mmal_vc_client vcos bcm_host)
+target_link_libraries(main rest system_manager network_manager hal utility rtc_agent ssl crypto mmal_core mmal_util mmal_vc_client vcos bcm_host pear nice srtp2 paho-mqtt3c rtp)
 
 endif(UNITTEST_ENABLE)
 

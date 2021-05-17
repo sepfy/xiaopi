@@ -1,0 +1,12 @@
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index 7560f5d..f8e143d 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -26,6 +26,7 @@ endif(ENABLE_TEST)
+ 
+ file(GLOB HEADERS "*.h")
+ set_target_properties(pear PROPERTIES PUBLIC_HEADER "${HEADERS}")
++set_target_properties(pear PROPERTIES SOVERSION 0.0.1)
+ 
+ install(TARGETS pear
+     LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/

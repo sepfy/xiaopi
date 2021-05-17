@@ -1,0 +1,17 @@
+diff --git a/gcc.mk b/gcc.mk
+index 65e90b2..b3c09ed 100644
+--- a/gcc.mk
++++ b/gcc.mk
+@@ -25,12 +25,6 @@ endif
+ #--------------------------------Compile-----------------------------
+ #
+ #--------------------------------------------------------------------
+-AR := $(CROSS)ar
+-CC := $(CROSS)gcc
+-CXX := $(CROSS)g++
+-CFLAGS += -Wall -fPIC
+-CXXFLAGS += -Wall
+-DEPFLAGS = -MMD -MP -MF $(OUTPATH)/$(*F).d
+ 
+ ifeq ($(RELEASE),1)
+ 	CFLAGS += -Wall -O2
