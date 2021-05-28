@@ -10,6 +10,10 @@ add_subdirectory(rtc)
 
 include_directories(./)
 
+find_package(PkgConfig)
+pkg_check_modules(GLIB REQUIRED glib-2.0)
+include_directories(${GLIB_INCLUDE_DIRS})
+
 #file(GLOB APP_SOURCES "*.cc")
 #add_library(rest ${APP_SOURCES})
 #target_link_libraries(rest libpistache.a)
@@ -24,7 +28,7 @@ add_executable(main main.cc)
 if(UNITTEST_ENABLE)
 target_link_libraries(main rest system_manager network_manager hal utility ssl crypto)
 else()
-target_link_libraries(main rest system_manager network_manager hal utility rtc_agent ssl crypto mmal_core mmal_util mmal_vc_client vcos bcm_host pear nice srtp2 paho-mqtt3c rtp)
+target_link_libraries(main rest system_manager network_manager hal utility rtc_agent ssl crypto mmal_core mmal_util mmal_vc_client vcos bcm_host pear nice srtp2 paho-mqtt3cs rtp curl)
 
 endif(UNITTEST_ENABLE)
 

@@ -11,7 +11,8 @@
 
 const int kFifoMaxSize = 65535;
 
-const std::string kBroker = "tcp://192.168.13.252:1883";
+const std::string kServer = "https://xiaopi.me";
+const std::string kBroker = "ssl://xiaopi.me:8883";
 
 void delivered(void *context, MQTTClient_deliveryToken dt) {
     printf("Message with token value %d delivery confirmed\n", dt);
@@ -26,7 +27,7 @@ int RtcAgent::OnMessage(void *context, char *topic, int len, MQTTClient_message 
 
     RtcAgent *rtc_agent = (RtcAgent*)context;
     PLOGI("Subscribe <-- %s", topic);
-    std::string offer_topic = "/offer/" + rtc_agent->client_id_;
+    std::string offer_topic = "/" + rtc_agent->device_code_ + "/offer";
     if(strcmp(topic, offer_topic.c_str()) == 0) {
       char *remote_sdp = (char*)message->payload;
       peer_connection_set_remote_description(&rtc_agent->peer_connection_, remote_sdp);
@@ -39,7 +40,7 @@ int RtcAgent::OnMessage(void *context, char *topic, int len, MQTTClient_message 
 }
 void RtcAgent::SendAnswer() {
 
-  std::string answer_topic = "/answer/" + client_id_;
+  std::string answer_topic = "/" + device_code_ + "/answer";
   
   MQTTClient_deliveryToken token;
   MQTTClient_message pubmsg = MQTTClient_message_initializer;
@@ -63,7 +64,7 @@ void RtcAgent::OnIcecandidate(char *sdp, void *context) {
 
 void* RtcAgent::SendVideoThread(void *data) {
 
-  PLOGI("Start");
+  PLOGI("Start to send media");
   char fifo[] = "/tmp/record.264";
   peer_connection_t *peer_connection = (peer_connection_t*)data;
   static h264_frame_t sps_frame;
@@ -139,6 +140,36 @@ void RtcAgent::OnTransportReady(void *context) {
   }
 }
 
+void RtcAgent::Start() {
+
+  long ret = 0;
+  std::string resource = kServer + "/api/v1/device";
+  std::string device_info = "{\"deviceCode\":\"" + device_code_ +
+   "\", \"deviceKey\":\"" + device_key_ + "\"}";
+
+  PLOGI("Post device info = %s to %s\n", device_info.c_str(), resource.c_str());
+  while(true) {
+    ret = utility::Http::Post(resource.c_str(), device_info.c_str());
+    if(ret == 200)
+      break;
+    PLOGE("Regist device info failed (%d). Retry...", ret);
+    sleep(10);
+  }
+
+  PLOGI("Register successfully");
+
+  ret = 1;
+  while(true) {
+    ret = Connect();
+
+    if(ret == 0)
+      break;
+    PLOGE("Connect to MQTT server failed. Retry...");
+    sleep(10);
+  }
+
+}
+
 int RtcAgent::InitPeerConnection() {
 
   peer_connection_init(&peer_connection_);
@@ -153,20 +184,28 @@ int RtcAgent::InitPeerConnection() {
 int RtcAgent::Connect() {
 
   int ret = -1;
-  std::string topic = "/offer/" + client_id_;
-  MQTTClient_create(&client_, kBroker.c_str(), client_id_.c_str(),
+  std::string topic = "/" + device_code_ + "/offer";
+  MQTTClient_create(&client_, kBroker.c_str(), "",
    MQTTCLIENT_PERSISTENCE_NONE, NULL);
 
   conn_opts_.keepAliveInterval = 20;
   conn_opts_.cleansession = 1;
+  conn_opts_.username = device_code_.c_str();
+  conn_opts_.password = device_key_.c_str();
 
   MQTTClient_setCallbacks(client_, this, connlost, RtcAgent::OnMessage, delivered);
 
+  conn_opts_.ssl = &ssl_opts_;
+  conn_opts_.ssl->trustStore = "/opt/xiaopi/ca/mqtts-ca.crt";
+  conn_opts_.ssl->enableServerCertAuth = false; 
+  conn_opts_.ssl->sslVersion = 3;
+ 
   if((ret = MQTTClient_connect(client_, &conn_opts_)) != MQTTCLIENT_SUCCESS) {
     PLOGE("Failed to connect, return code %d\n", ret);
     return -1;
   }
 
+  InitPeerConnection();
   PLOGI("Subscribe: %s", topic.c_str());
   MQTTClient_subscribe(client_, topic.c_str(), 1/*QOS*/);
   return 0;

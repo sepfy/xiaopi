@@ -16,6 +16,7 @@ class SystemManager {
   std::string ReadConfig(std::string key);
   bool ReadConfig(std::string key, bool *value);
   std::string hmac() { return hmac_; }
+  std::string device_code() { return device_code_; }
   void ResetToDefault();
   void Init();
 
@@ -25,7 +26,7 @@ class SystemManager {
   std::string salt_ = "xiaopi";
   std::string hmac_ = "";
   static SystemManager *instance_;
-
+  std::string device_code_;
 #ifdef DEVEL
   std::string config_path_ = "./config.json";
 #else

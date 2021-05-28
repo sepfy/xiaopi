@@ -9,7 +9,9 @@ S = "${WORKDIR}/git"
 DEPENDS = "glib-2.0 libsrtp libnice librtp"
 SRCREV = "e3a304c79a90bd6429200850cb381fd61e942d57"
 SRC_URI = "gitsm://github.com/sepfy/pear.git;protocol=https;branch=main"
-SRC_URI += "file://version.patch"
+SRC_URI += "file://version.patch \
+            file://srtp.patch \
+"
 
 inherit cmake
 

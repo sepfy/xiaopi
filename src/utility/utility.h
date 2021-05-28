@@ -7,5 +7,6 @@
 #include "utility/net.h"
 #include "utility/plog.h"
 #include "utility/time.h"
+#include "utility/http.h"
 
 #endif // UTILITY_UTILITY_H_

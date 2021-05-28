@@ -1,0 +1,26 @@
+diff --git a/src/dtls_transport.h b/src/dtls_transport.h
+index a00240d..05ad725 100644
+--- a/src/dtls_transport.h
++++ b/src/dtls_transport.h
+@@ -11,7 +11,7 @@
+ #include <openssl/asn1.h>
+ #include <openssl/bio.h>
+ #include <openssl/ssl.h>
+-#include <srtp.h> 
++#include <srtp2/srtp.h>
+ 
+ typedef struct dtls_transport_t {
+ 
+diff --git a/src/ice_agent.h b/src/ice_agent.h
+index 070a3a0..19c14f8 100644
+--- a/src/ice_agent.h
++++ b/src/ice_agent.h
+@@ -1,7 +1,7 @@
+ #ifndef ICE_AGENT_H_
+ #define ICE_AGENT_H_
+ 
+-#include <agent.h>
++#include <nice/agent.h>
+ #include "sdp_attribute.h"
+ #include "dtls_transport.h"
+ 

@@ -13,25 +13,31 @@ extern "C"
 
 
 class RtcAgent {
+
  public:
-  RtcAgent(std::string client_id) { client_id_ = client_id; }
+  RtcAgent(std::string device_code, std::string device_key) {
+   device_code_ = device_code;
+   device_key_ = device_key;
+  }
+
   ~RtcAgent() {}
+  void Start();
+  int InitPeerConnection();
   int Connect();
   void Disconnect();
   static int OnMessage(void *context, char *topic, int len, MQTTClient_message *message);
   static void OnTransportReady(void *context);
   static void OnIcecandidate(char *sdp, void *context);
   static void* SendVideoThread(void *context);
-  int InitPeerConnection();
- private:
 
+ private:
   peer_connection_t peer_connection_;
-  std::string client_id_;
+  std::string device_code_;
+  std::string device_key_;
   std::string ice_candidate_;
   MQTTClient client_;
   MQTTClient_connectOptions conn_opts_ = MQTTClient_connectOptions_initializer;
-  //MQTTClient_message pubmsg = MQTTClient_message_initializer;
-  //MQTTClient_deliveryToken token;
+  MQTTClient_SSLOptions ssl_opts_ = MQTTClient_SSLOptions_initializer;
   void SendAnswer();
   pthread_t media_thread_id_;
 };
