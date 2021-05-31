@@ -12,7 +12,7 @@ WifiStation::WifiStation() : WifiInterface(STATION_CTRL_INTERFACE) {
   size_t reply_len = sizeof(reply);
 
   memset(cmd, 0, sizeof(cmd));
-  sprintf(cmd, "ENABLE");
+  sprintf(cmd, "ENABLE_NETWORK all");
   cmd_len = strlen(cmd);
   SendCommand(cmd, cmd_len, reply, &reply_len);
 

@@ -350,10 +350,10 @@ int MmalCapturer::InitMmal() {
 void MmalCapturer::Start(void) {
   printf("Resolution = (%d, %d)\n", VIDEO_WIDTH, VIDEO_HEIGHT);
 
-  InitMmal();
   AddReceiver("/tmp/cam.264"); 
   AddReceiver("/tmp/record.264"); 
   Init();
+  InitMmal();
   while(1) {
     sleep(1);
   }

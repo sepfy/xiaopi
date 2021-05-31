@@ -2,6 +2,8 @@
 #include <string>
 #include <fstream>
 #include <unistd.h>
+#include <unistd.h>
+#include <sys/reboot.h>
 
 #include "network/network_manager.h"
 #include "system/system_manager.h"
@@ -98,4 +100,9 @@ bool SystemManager::ReadConfig(std::string key, bool *value) {
 void SystemManager::ResetToDefault() {
   remove(config_path_.c_str());
   Init();
+}
+
+void SystemManager::Reboot() {
+  sync();
+  reboot(RB_AUTOBOOT);
 }

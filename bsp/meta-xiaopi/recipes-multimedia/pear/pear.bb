@@ -7,7 +7,7 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 S = "${WORKDIR}/git" 
 
 DEPENDS = "glib-2.0 libsrtp libnice librtp"
-SRCREV = "e3a304c79a90bd6429200850cb381fd61e942d57"
+SRCREV = "1e91c3199dc925738a929743442e877b6386cfc5"
 SRC_URI = "gitsm://github.com/sepfy/pear.git;protocol=https;branch=main"
 SRC_URI += "file://version.patch \
             file://srtp.patch \

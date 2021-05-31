@@ -28,15 +28,21 @@ int RtcAgent::OnMessage(void *context, char *topic, int len, MQTTClient_message 
     RtcAgent *rtc_agent = (RtcAgent*)context;
     PLOGI("Subscribe <-- %s", topic);
     std::string offer_topic = "/" + rtc_agent->device_code_ + "/offer";
+    if(rtc_agent->video_thread_running_ || !rtc_agent->peer_initilized_
+     ||rtc_agent->offer_received_) {
+      return -1;
+    }
+
     if(strcmp(topic, offer_topic.c_str()) == 0) {
       char *remote_sdp = (char*)message->payload;
-      peer_connection_set_remote_description(&rtc_agent->peer_connection_, remote_sdp);
+      peer_connection_set_remote_description(rtc_agent->peer_connection_, remote_sdp);
+      rtc_agent->offer_received_ = true;
       rtc_agent->SendAnswer();
     }
 
     MQTTClient_freeMessage(&message);
     MQTTClient_free(topic);
-    return 1;
+    return 0;
 }
 void RtcAgent::SendAnswer() {
 
@@ -54,19 +60,32 @@ void RtcAgent::SendAnswer() {
 
 }
 
+void RtcAgent::OnIceConnectionStateChange(iceconnectionstate_t state, void *context) {
+
+  if(state == FAILED) {
+    PLOGI("Disconnect... Stop streaming");
+    RtcAgent *rtc_agent = (RtcAgent*)context;
+    rtc_agent->video_thread_running_ = false;
+    rtc_agent->peer_initilized_ = false;
+    rtc_agent->offer_received_ = false;
+  }
+
+}
+
 void RtcAgent::OnIcecandidate(char *sdp, void *context) {
 
   RtcAgent *rtc_agent = (RtcAgent*)context;
   rtc_agent->ice_candidate_ = std::string(g_base64_encode((const unsigned char *)sdp, strlen(sdp)));
-  
+  rtc_agent->peer_initilized_ = true; 
   PLOGI("%s", rtc_agent->ice_candidate_.c_str());
 }
 
 void* RtcAgent::SendVideoThread(void *data) {
 
   PLOGI("Start to send media");
+  RtcAgent *rtc_agent = (RtcAgent*)data;
   char fifo[] = "/tmp/record.264";
-  peer_connection_t *peer_connection = (peer_connection_t*)data;
+  peer_connection_t *peer_connection = rtc_agent->peer_connection_;
   static h264_frame_t sps_frame;
   static h264_frame_t pps_frame;
   int ret = 0;
@@ -90,7 +109,7 @@ void* RtcAgent::SendVideoThread(void *data) {
   static unsigned long timestamp = 0;
 
 
-  while(1) {
+  while(rtc_agent->video_thread_running_) {
 
     size = read(fd, buf, sizeof(buf));
     h264_frame->size = size;
@@ -119,14 +138,13 @@ void* RtcAgent::SendVideoThread(void *data) {
       free(buf_tmp);
     }
 
-for(int i = 0; i < 16; ++i)
-  printf("%.2X ", h264_frame->buf[i]);
-printf("\n");
-
     rtp_encode_frame(rtp_encode_context, h264_frame->buf, h264_frame->size, timestamp);
     timestamp += 33000;
   }
-  printf("End of send video thread\n");
+  PLOGI("End of send video thread\n");
+  close(fd);
+  rtc_agent->media_thread_id_ = -1; 
+  rtc_agent->InitPeerConnection();
   pthread_exit(NULL);
 
 }
@@ -135,9 +153,26 @@ void RtcAgent::OnTransportReady(void *context) {
 
   RtcAgent *rtc_agent = (RtcAgent*)context;
   if(((int)rtc_agent->media_thread_id_) == -1) {
-    pthread_create(&rtc_agent->media_thread_id_, NULL, RtcAgent::SendVideoThread, &rtc_agent->peer_connection_);
+    rtc_agent->video_thread_running_ = true;
+    pthread_create(&rtc_agent->media_thread_id_, NULL, RtcAgent::SendVideoThread, context);
     pthread_detach(rtc_agent->media_thread_id_);
   }
+}
+
+bool RtcAgent::UpdateDeviceKey(std::string device_code,
+ std::string old_device_key, std::string new_device_key) {
+
+  std::string resource = kServer + "/api/v1/device/" + device_code;
+  std::string device_info = "{\"oldDeviceKey\":\"" + old_device_key +
+   "\", \"newDeviceKey\":\"" + new_device_key + "\"}";
+
+  PLOGI("Put device %s with data %s\n", resource.c_str(), device_info.c_str());
+  int ret = utility::Http::Put(resource.c_str(), device_info.c_str());
+  PLOGI("return stats = %d", ret);
+  if(ret == 200) {
+    return true;
+  }
+  return false;
 }
 
 void RtcAgent::Start() {
@@ -172,11 +207,14 @@ void RtcAgent::Start() {
 
 int RtcAgent::InitPeerConnection() {
 
-  peer_connection_init(&peer_connection_);
-  peer_connection_set_on_icecandidate(&peer_connection_, (void*)RtcAgent::OnIcecandidate, this);
-  peer_connection_set_on_transport_ready(&peer_connection_, (void*)OnTransportReady, this);
+  peer_connection_destroy(peer_connection_);
+  peer_connection_ = peer_connection_create();
+  peer_connection_set_on_icecandidate(peer_connection_, (void*)RtcAgent::OnIcecandidate, this);
+  peer_connection_set_on_transport_ready(peer_connection_, (void*)RtcAgent::OnTransportReady, this);
+  peer_connection_set_on_iceconnectionstatechange(peer_connection_,
+   (void*)RtcAgent::OnIceConnectionStateChange, this);
 
-  peer_connection_create_answer(&peer_connection_);
+  peer_connection_create_answer(peer_connection_);
   media_thread_id_ = -1;
   return 0;
 }

@@ -16,25 +16,26 @@
 
 int main(void) {
 
-#if 0
   pid_t pid;
   pid = fork();
 
   if(pid == 0) {
-#endif
+
     SystemManager *system_manager = SystemManager::GetInstance();
     RtcAgent rtc_agent(system_manager->device_code(), system_manager->ReadConfig("deviceKey"));
-    rtc_agent.Start();
+    bool remote_enable = false;
+    system_manager->ReadConfig("remoteEnable", &remote_enable);
+    if(remote_enable == true) {
+      rtc_agent.Start();
+    }
 #ifndef DEVEL
     MmalCapturer mmal_capturer;
     mmal_capturer.Start();
 #endif
-#if 0
   }
   else if (pid > 0) {
-    printf("network...\n");
-//    NetworkManager *network_manager = NetworkManager::GetInstance();
-//    network_manager->WifiMonitor();
+    NetworkManager *network_manager = NetworkManager::GetInstance();
+    network_manager->WifiMonitor();
     ApiEndpoint api_endpoint;
 #ifdef DEVEL
     api_endpoint.Init(8080);
@@ -46,6 +47,5 @@ int main(void) {
   else {
     PLOGE("Forks error");
   }
-#endif
   return 0;
 }

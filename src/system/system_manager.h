@@ -18,6 +18,7 @@ class SystemManager {
   std::string hmac() { return hmac_; }
   std::string device_code() { return device_code_; }
   void ResetToDefault();
+  void Reboot();
   void Init();
 
  private:
