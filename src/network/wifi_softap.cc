@@ -13,7 +13,7 @@ WifiSoftap::WifiSoftap() : WifiInterface(SOFTAP_CTRL_INTERFACE) {
   size_t reply_len = sizeof(reply);
 
   memset(cmd, 0, sizeof(cmd));
-  sprintf(cmd, "ENABLE");
+  sprintf(cmd, "DISABLE");
   cmd_len = strlen(cmd);
   SendCommand(cmd, cmd_len, reply, &reply_len);
 
@@ -39,7 +39,7 @@ void WifiSoftap::OnEvent(char *buf, int len) {
   }
 
   if(softap_status_ != kEnable) {
-    if((utility::time::getms() - disconnection_time_ms_) > 60*1000 && is_disconnection_) { 
+    if((utility::time::getms() - disconnection_time_ms_) > 3*60*1000 && is_disconnection_) { 
       PLOGI("Station is disconnected. Enable softap");
       sprintf(cmd, "ENABLE");
       SendCommand(cmd, sizeof(cmd), reply, &reply_len);

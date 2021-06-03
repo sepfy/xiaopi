@@ -19,8 +19,17 @@ void delivered(void *context, MQTTClient_deliveryToken dt) {
 }
 
 void connlost(void *context, char *cause) {
-    printf("\nConnection lost\n");
-    printf("     cause: %s\n", cause);
+  PLOGI("CONNECTION LOST");
+  RtcAgent *rtc_agent = (RtcAgent*)context;
+  while(true) {
+    int ret = rtc_agent->Connect();
+
+    if(ret == 0)
+      break;
+    PLOGE("Connect to MQTT server failed. Retry...");
+    sleep(10);
+  }
+
 }
 
 int RtcAgent::OnMessage(void *context, char *topic, int len, MQTTClient_message *message) {
@@ -85,13 +94,12 @@ void* RtcAgent::SendVideoThread(void *data) {
   PLOGI("Start to send media");
   RtcAgent *rtc_agent = (RtcAgent*)data;
   char fifo[] = "/tmp/record.264";
-  peer_connection_t *peer_connection = rtc_agent->peer_connection_;
   static h264_frame_t sps_frame;
   static h264_frame_t pps_frame;
   int ret = 0;
 
   rtp_encode_context_t *rtp_encode_context;
-  rtp_encode_context = create_rtp_encode_context(peer_connection);
+  rtp_encode_context = create_rtp_encode_context(rtc_agent);
 
   int fd = -1;
   fd = open(fifo, O_RDONLY);
@@ -118,13 +126,11 @@ void* RtcAgent::SendVideoThread(void *data) {
       sps_frame.size = h264_frame->size;
       sps_frame.buf = (uint8_t*)malloc(h264_frame->size);
       memcpy(sps_frame.buf, h264_frame->buf, h264_frame->size);
-      continue;
     }
     else if(h264_frame->buf[4] == 0x68) {
       pps_frame.size = h264_frame->size;
       pps_frame.buf = (uint8_t*)malloc(h264_frame->size);
       memcpy(pps_frame.buf, h264_frame->buf, h264_frame->size);
-      continue;
     }
     else if(h264_frame->buf[4] == 0x25) {
       int size_tmp = h264_frame->size;

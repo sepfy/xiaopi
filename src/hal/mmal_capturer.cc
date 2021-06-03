@@ -354,8 +354,5 @@ void MmalCapturer::Start(void) {
   AddReceiver("/tmp/record.264"); 
   Init();
   InitMmal();
-  while(1) {
-    sleep(1);
-  }
 }
 

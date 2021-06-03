@@ -17,11 +17,16 @@ static void rtp_encode_free(void* param, void *packet) {
 static int rtp_encode_packet(void* param, const void *packet, int bytes, uint32_t timestamp, int flags) {
 
   rtp_encode_context_t *rtp_encode_context = (struct rtp_encode_context_t*)param;
-  peer_connection_send_rtp_packet(rtp_encode_context->peer_connection, (uint8_t*)packet, bytes);
+  if(!rtp_encode_context->rtc_agent->video_thread_running())
+    return 0;
+
+  int ret = peer_connection_send_rtp_packet(rtp_encode_context->rtc_agent->peer_connection(), (uint8_t*)packet, bytes);
+  if(ret < bytes)
+    rtp_encode_context->rtc_agent->Stop();
   return 0;
 }
 
-struct rtp_encode_context_t* create_rtp_encode_context(peer_connection_t *peer_connection) {
+struct rtp_encode_context_t* create_rtp_encode_context(RtcAgent *rtc_agent) {
 
   struct rtp_encode_context_t *rtp_encode_context = NULL;
   rtp_encode_context = (rtp_encode_context_t*)malloc(sizeof(struct rtp_encode_context_t));
@@ -29,7 +34,7 @@ struct rtp_encode_context_t* create_rtp_encode_context(peer_connection_t *peer_c
   rtp_encode_context->handler.free = rtp_encode_free;
   rtp_encode_context->handler.packet = rtp_encode_packet;
   rtp_encode_context->encoder = rtp_payload_encode_create(102, "H264", 0, 12345678, &rtp_encode_context->handler, rtp_encode_context);
-  rtp_encode_context->peer_connection = peer_connection;
+  rtp_encode_context->rtc_agent = rtc_agent;
 
   return rtp_encode_context;
 }
