@@ -1,6 +1,0 @@
-[Unit]
-Description=start initscript upon first boot
-
-[Service]
-Type=simple
-ExecStart=/bin/bash '/etc/rc.local'

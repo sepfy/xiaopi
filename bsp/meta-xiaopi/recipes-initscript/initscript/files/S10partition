@@ -1,0 +1,35 @@
+#!/bin/sh
+
+fdisk -l /dev/mmcblk0 | grep mmcblk0p3
+if [ $? -eq "1" ]; then
+  echo "########### First boot...      #############"
+  echo "########### Formating SD card  #############"
+
+  fs_end_lba=$(fdisk -l /dev/mmcblk0 | grep mmcblk0p2 | awk '{print $5}')
+
+  userdata_start_lba=$(($fs_end_lba + 1))
+  userdata_end_lba=$(($userdata_start_lba + 163840))
+  camera_start_lba=$(($userdata_end_lba + 1))
+
+  # Formatting
+  echo -e "n\np\n3\n$userdata_start_lba\n$userdata_end_lba\nn\np\n4\n$camera_start_lba\n\nw\n" | fdisk /dev/mmcblk0
+  reboot
+fi
+
+modprobe fuse
+
+mount /dev/mmcblk0p3 /home/root
+if [ $? -eq "32" ]; then
+  echo "Cannot mount userdata. Format it to ext4"
+  mkfs.ext4 /dev/mmcblk0p3
+  mount /dev/mmcblk0p3 /home/root
+fi
+
+mount /dev/mmcblk0p4 /mnt
+if [ $? -eq "32" ]; then
+  echo "Cannot mount camera data. Format it to exfat"
+  mkfs.exfat /dev/mmcblk0p4
+  mount /dev/mmcblk0p4 /mnt
+fi
+
+

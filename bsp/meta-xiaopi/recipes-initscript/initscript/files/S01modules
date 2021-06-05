@@ -1,0 +1,6 @@
+#!/bin/sh
+
+modprobe brcmfmac
+modprobe fuse
+modprobe dwc2
+modprobe g_ether

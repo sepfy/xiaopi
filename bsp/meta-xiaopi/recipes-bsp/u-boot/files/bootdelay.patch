@@ -1,0 +1,9 @@
+diff --git a/configs/rpi_0_w_defconfig b/configs/rpi_0_w_defconfig
+index 39da54c3e7..f473eda63f 100644
+--- a/configs/rpi_0_w_defconfig
++++ b/configs/rpi_0_w_defconfig
+@@ -38,3 +38,4 @@ CONFIG_SYS_WHITE_ON_BLACK=y
+ CONFIG_CONSOLE_SCROLL_LINES=10
+ CONFIG_PHYS_TO_BUS=y
+ CONFIG_OF_LIBFDT_OVERLAY=y
++CONFIG_BOOTDELAY=0

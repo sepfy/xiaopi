@@ -1,0 +1,16 @@
+#!/bin/sh
+
+iw dev wlan0 interface add wlan1 type __ap
+ifconfig lo up
+ifconfig wlan0 up
+ifconfig wlan1 192.168.11.1
+ifconfig usb0 192.168.13.1
+
+# https://codz.me/2017/06/10/can-not-read-from-dev-random/
+mv /dev/random /dev/random.orig
+ln -s /dev/urandom /dev/random
+
+dnsmasq -C /etc/dnsmasq.conf
+wpa_supplicant -Dnl80211 -iwlan0 -c/etc/wpa_supplicant.conf -B
+hostapd /etc/hostapd.conf -B
+udhcpc -iwlan0 &

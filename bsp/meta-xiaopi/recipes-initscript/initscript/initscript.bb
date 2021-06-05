@@ -3,23 +3,19 @@ DESCRIPTION = "Script to do any first boot init, started as a systemd service wh
 LICENSE = "CLOSED"
 
 SRC_URI =  " \
-    file://rc.local \
-    file://initscript.service \
+    file://S01modules \
+    file://S10partition \
+    file://S20network \
+    file://S60rtsp \
+    file://S99main \
 "
 
-inherit systemd
-
-RDEPENDS_${PN} += "bash"
-SYSTEMD_PACKAGES = "${PN}"
-SYSTEMD_SERVICE_${PN} = "initscript.service"
 
 do_compile () {
 }
 
 do_install () {
-    install -d ${D}${sysconfdir}
-    install -m 0755 ${WORKDIR}/rc.local ${D}${sysconfdir}
+    install -d ${D}${sysconfdir}/rcS.d/
+    install -m 0755 ${WORKDIR}/S* ${D}${sysconfdir}/rcS.d/
 
-    install -d ${D}${systemd_unitdir}/system/
-    install -m 0644 ${WORKDIR}/initscript.service ${D}${systemd_unitdir}/system
 }
