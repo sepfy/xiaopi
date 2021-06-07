@@ -6,8 +6,7 @@ SRC_URI =  " \
     file://S01modules \
     file://S10partition \
     file://S20network \
-    file://S60rtsp \
-    file://S99main \
+    file://S99watchdog \
 "
 
 

@@ -1,0 +1,13 @@
+
+
+service /usr/bin/dnsmasq dnsmasq -C /etc/dnsmasq.conf -d
+
+service /usr/sbin/wpa_supplicant wpa_supplicant -Dnl80211 -iwlan0 -c/etc/wpa_supplicant.conf
+
+service /sbin/udhcpc udhcpc -iwlan0 -f
+
+service /usr/bin/rtsp-server rtsp-server
+
+service /usr/bin/main main
+
+
