@@ -2,7 +2,6 @@
 #include <string>
 #include <fstream>
 #include <unistd.h>
-#include <unistd.h>
 #include <sys/reboot.h>
 
 #include "network/network_manager.h"

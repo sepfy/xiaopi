@@ -13,24 +13,28 @@
 WifiInterface::WifiInterface(const char *interface_path) {
 
   interface_path_ = interface_path;
+}
+
+int WifiInterface::Init() {
 
   monitor_conn_ = wpa_ctrl_open(interface_path_);
   if(monitor_conn_ == nullptr) {
     PLOGE("Create monitor conn failed");
-    exit(1);
+    return -1;
   }
 
   ctrl_conn_ = wpa_ctrl_open(interface_path_);
   if(ctrl_conn_ == nullptr) {
     PLOGE("Create control conn failed");
-    exit(1);
+    return -1;
   }
 
   if(wpa_ctrl_attach(monitor_conn_) != 0) {
     PLOGE("Attach monitor conn failed");
-    return;
+    return -1;
   }
 
+  return 0;
 }
 
 void WifiInterface::Monitor() {

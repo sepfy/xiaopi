@@ -14,7 +14,9 @@ class WifiStation : public WifiInterface {
   WifiStation();
   std::string GetScanResults();
   std::string GetStatus();
+  std::string ListNetworks();
   void AddNetwork(std::string ssid, std::string psk, std::string security);
+  void Enable();
 };
 
 

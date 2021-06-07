@@ -6,6 +6,10 @@
 
 WifiStation::WifiStation() : WifiInterface(STATION_CTRL_INTERFACE) {
 
+}
+
+void WifiStation::Enable() {
+
   char cmd[32] = {0};
   size_t cmd_len = 0;
   char reply[8] = {0};
@@ -100,3 +104,19 @@ std::string WifiStation::GetScanResults() {
   return ret;
 }
 
+std::string WifiStation::ListNetworks() {
+
+  char cmd[128] = {0};
+  size_t cmd_len;
+  char reply[8192] = {0};
+  size_t reply_len = sizeof(reply);
+
+  reply_len = sizeof(reply);
+  memset(cmd, 0, sizeof(cmd));
+  sprintf(cmd, "LIST_NETWORKS");
+  cmd_len = strlen(cmd);
+  SendCommand(cmd, cmd_len, reply, &reply_len);
+  std::string ret(reply);
+  return ret;
+
+}

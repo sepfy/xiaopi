@@ -1,11 +1,23 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <string>
 
 #include "utility/utility.h"
 #include "wifi_softap.h"
 
 WifiSoftap::WifiSoftap() : WifiInterface(SOFTAP_CTRL_INTERFACE) {
+
+  std::ifstream file("/etc/hostapd.conf");
+  std::string default_config((std::istreambuf_iterator<char>(file)),
+   std::istreambuf_iterator<char>());
+  customized_config_ = default_config;
+}
+
+void WifiSoftap::Disable() {
 
   char cmd[32] = {0};
   size_t cmd_len = 0;
@@ -19,33 +31,50 @@ WifiSoftap::WifiSoftap() : WifiInterface(SOFTAP_CTRL_INTERFACE) {
 
 }
 
-void WifiSoftap::OnEvent(char *buf, int len) {
+void WifiSoftap::Enable() {
 
-  char cmd[64] = {0};
-  char reply[256] = {0};
+  char cmd[32] = {0};
+  size_t cmd_len = 0;
+  char reply[8] = {0};
   size_t reply_len = sizeof(reply);
 
-  if(strstr(buf, WPA_EVENT_CONNECTED) != nullptr && softap_status_ != kDisable) {
-    is_disconnection_ = false;
-    PLOGI("Station is connected. Disable softap");
-    sprintf(cmd, "DISABLE");
-    SendCommand(cmd, sizeof(cmd), reply, &reply_len);
-    softap_status_ = kDisable;
-  }
+  memset(cmd, 0, sizeof(cmd));
+  sprintf(cmd, "ENABLE");
+  cmd_len = strlen(cmd);
+  SendCommand(cmd, cmd_len, reply, &reply_len);
 
-  if(strstr(buf, WPA_EVENT_DISCONNECTED) != nullptr) {
-    is_disconnection_ = true;
-    disconnection_time_ms_ = utility::time::getms();
-  }
-
-  if(softap_status_ != kEnable) {
-    if((utility::time::getms() - disconnection_time_ms_) > 3*60*1000 && is_disconnection_) { 
-      PLOGI("Station is disconnected. Enable softap");
-      sprintf(cmd, "ENABLE");
-      SendCommand(cmd, sizeof(cmd), reply, &reply_len);
-      softap_status_ = kEnable;
-    }
-  }
 }
 
+void WifiSoftap::SaveConfig() {
+
+  std::ofstream ofs("/tmp/hostapd.conf");
+  ofs << customized_config_;
+  ofs.close();
+}
+
+bool WifiSoftap::UpdateConfig(std::string key, std::string value) {
+
+
+  bool updated_config = false;
+
+  std::string out_config = "";
+  std::istringstream in_config(customized_config_);
+  std::string line;
+  while (std::getline(in_config, line)) {
+    std::string substr = line.substr(0, line.find("="));
+    if(substr == key) {
+      std::string new_setting = key + "=" + value + "\n";
+      out_config.append(new_setting);
+      updated_config = true;
+    }
+    else {
+      out_config.append(line + "\n");
+    }
+  }
+
+  if(updated_config) {
+    WifiSoftap::customized_config_ = out_config;
+  }
+  return updated_config;
+}
 

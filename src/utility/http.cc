@@ -22,6 +22,8 @@ long Http::Post(const char *url, const char *data) {
        just as well be a https:// URL if that is what should receive the
        data. */
     curl_easy_setopt(curl, CURLOPT_URL, url);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0);
     /* Now specify the POST data */
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data);
  
@@ -62,7 +64,8 @@ long Http::Put(const char *url, const char *data) {
     curl_easy_setopt(curl, CURLOPT_URL, url);
     /* Now specify the PUT data */
     curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "PUT");
-
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0);
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data);
  
     /* Perform the request, res will get the return code */

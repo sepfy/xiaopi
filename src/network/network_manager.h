@@ -4,9 +4,20 @@
 #include <string>
 #include <vector>
 #include <pthread.h>
+#include <memory>
+#include <map>
+
+#include <nlohmann/json.hpp>
 
 #include "wifi_station.h"
 #include "wifi_softap.h"
+
+using json = nlohmann::json;
+
+typedef enum {
+  kEnable,
+  kDisable,
+} SoftapStatus;
 
 typedef struct {
   std::string bssid;
@@ -34,7 +45,7 @@ typedef struct {
   std::string ssid;
 } WpaInfo; 
 
-class NetworkManager {
+class NetworkManager : public WifiEventObserver {
 
  public:
   std::string GetInterfaces();
@@ -50,14 +61,19 @@ class NetworkManager {
   std::string GetStationHwAddr();
   void WifiMonitor();
  private:
-  WifiStation wifi_station_;
-  WifiSoftap wifi_softap_;
+  std::shared_ptr<WifiStation> wifi_station_;
+  std::shared_ptr<WifiSoftap> wifi_softap_;
   NetworkManager();
+  void OnEvent(char *buf, int len);
 #ifdef DEVEL
   std::string interface_ = "wlx40b07656eff8";
 #else
   std::string interface_ = "wlan0";
 #endif
+  uint64_t restart_time_ms_;
+  int current_softap_channel_;
+  json network_config_;
+  std::string network_config_file_ = "/opt/xiaopi/net_config.json";
 
 };
 

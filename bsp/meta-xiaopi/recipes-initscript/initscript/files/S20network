@@ -12,5 +12,5 @@ ln -s /dev/urandom /dev/random
 
 dnsmasq -C /etc/dnsmasq.conf
 wpa_supplicant -Dnl80211 -iwlan0 -c/etc/wpa_supplicant.conf -B
-hostapd /etc/hostapd.conf -B
+#hostapd /etc/hostapd.conf -B
 udhcpc -iwlan0 &
