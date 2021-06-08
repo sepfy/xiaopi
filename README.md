@@ -19,7 +19,7 @@ XiaoPi camera supports multiple connection methods:
 
 ### Camera Viewing
 - [RTSP](https://github.com/sepfy/xiaopi/wiki/Evaluation)
-- WebRTC (comming soon)
+- [WebRTC](https://github.com/sepfy/xiaopi/wiki/WebRTC) (PREVIEW)
 
 ### More Information
 Please check out [Wiki](https://github.com/sepfy/xiaopi/wiki) or contact with me.
