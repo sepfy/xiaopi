@@ -173,7 +173,7 @@ bool RtcAgent::UpdateDeviceKey(std::string device_code,
    "\", \"newDeviceKey\":\"" + new_device_key + "\"}";
 
   PLOGI("Put device %s with data %s\n", resource.c_str(), device_info.c_str());
-  int ret = utility::Http::Put(resource.c_str(), device_info.c_str());
+  int ret = utility::http::Put(resource.c_str(), device_info.c_str());
   PLOGI("return stats = %d", ret);
   if(ret == 200) {
     return true;
@@ -190,10 +190,10 @@ void RtcAgent::Start() {
 
   PLOGI("Post device info = %s to %s\n", device_info.c_str(), resource.c_str());
   while(true) {
-    ret = utility::Http::Post(resource.c_str(), device_info.c_str());
+    ret = utility::http::Post(resource.c_str(), device_info.c_str());
     if(ret == 200)
       break;
-    PLOGE("Regist device info failed (%d). Retry...", ret);
+    PLOGW("Regist device info failed (%d). Retry...", ret);
     sleep(10);
   }
 

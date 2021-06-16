@@ -6,15 +6,13 @@
 #include <string>
 
 namespace utility {
+namespace net {
 
-class Net {
- public:
-  static std::string GetIpAddr(std::string interface);
-  static std::string GetNetmask(std::string interface);
-  static std::string GetHwAddr(std::string interface);
+  std::string GetIpAddr(std::string interface);
+  std::string GetNetmask(std::string interface);
+  std::string GetHwAddr(std::string interface);
 
-};
-
+} // namespace net
 } // namespace utility
 
 #endif // UTILITY_NET_H_

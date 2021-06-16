@@ -6,8 +6,9 @@
 #include "utility/parser.h"
 
 namespace utility {
+namespace parser {
 
-std::vector<std::string> Parser::Split(std::string str, std::string del) {
+std::vector<std::string> Split(std::string str, std::string del) {
 
   std::vector<std::string> v;
   int found;
@@ -22,6 +23,6 @@ std::vector<std::string> Parser::Split(std::string str, std::string del) {
   return v;
 }
 
-
+} // namespace parser
 } // namespace utility
 

@@ -44,17 +44,17 @@ void SystemManager::Init() {
   i >> system_config_;
   i.close();
 
-  hmac_ = utility::Security::Hmac(system_config_["password"], salt_);
+  hmac_ = utility::security::Hmac(system_config_["password"], salt_);
 
-  std::string hwaddr = utility::Net::GetHwAddr("wlan0");
+  std::string hwaddr = utility::net::GetHwAddr("wlan0");
 
   std::string device_name = "xiaopi_" +  hwaddr.substr(0,2) + hwaddr.substr(3,2) + hwaddr.substr(6,2);
 
   PLOGI("Get device name %s", device_name.c_str());
 
-  std::string device_code_hmac = utility::Security::Hmac(device_name, salt_);
+  std::string device_code_hmac = utility::security::Hmac(device_name, salt_);
 
-  device_code_ = utility::Security::Base58Encode((const unsigned char*)device_code_hmac.c_str(),
+  device_code_ = utility::security::Base58Encode((const unsigned char*)device_code_hmac.c_str(),
    device_code_hmac.length());
 
   PLOGI("Get device code %s", device_code_.c_str());

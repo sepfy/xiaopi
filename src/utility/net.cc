@@ -11,8 +11,9 @@
 #include "utility/net.h"
 
 namespace utility {
+namespace net {
 
-std::string Net::GetIpAddr(std::string interface) {
+std::string GetIpAddr(std::string interface) {
 
   int fd, ret;
   struct ifreq ifr;
@@ -32,7 +33,7 @@ std::string Net::GetIpAddr(std::string interface) {
   return addr;
 }
 
-std::string Net::GetNetmask(std::string interface) {
+std::string GetNetmask(std::string interface) {
 
   int fd, ret;
   struct ifreq ifr;
@@ -52,7 +53,7 @@ std::string Net::GetNetmask(std::string interface) {
   return addr;
 }
 
-std::string Net::GetHwAddr(std::string interface) {
+std::string GetHwAddr(std::string interface) {
   uint8_t *ptr;
   int fd, ret;
   struct ifreq ifr;
@@ -74,5 +75,5 @@ std::string Net::GetHwAddr(std::string interface) {
   return addr;
 }
 
-
+} // namespace net
 } // namespace utility

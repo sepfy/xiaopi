@@ -4,14 +4,12 @@
 #include <iostream>
 
 namespace utility {
+namespace http {
 
-class Http {
- public:
-  static long Post(const char *url, const char *data); 
-  static long Put(const char *url, const char *data); 
+  long Post(const char *url, const char *data); 
+  long Put(const char *url, const char *data); 
 
-};
-
+} // namespace http
 } // namespace utility
 
 #endif // UTILITY_HTTP_H_

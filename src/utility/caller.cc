@@ -6,8 +6,9 @@
 #include "caller.h"
 
 namespace utility {
+namespace caller {
 
-std::string Caller::PipeCall(std::string cmd) {
+std::string PipeCall(std::string cmd) {
 
   std::string result;
   FILE * p_file = NULL;
@@ -27,5 +28,6 @@ std::string Caller::PipeCall(std::string cmd) {
   return result;
 }
 
+} // namespace caller
 } // namespace utility
 

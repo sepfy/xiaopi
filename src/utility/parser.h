@@ -6,13 +6,11 @@
 #include <string>
 
 namespace utility {
+namespace parser {
 
-class Parser {
- public:
-  static std::vector<std::string> Split(std::string str, std::string del);  
+  std::vector<std::string> Split(std::string str, std::string del);  
 
-};
-
+} // namespace parser
 } // namespace utility
 
 #endif // UTILITY_PARSER_H_

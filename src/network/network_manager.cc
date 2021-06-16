@@ -39,7 +39,7 @@ NetworkManager::NetworkManager() {
 
   restart_time_ms_ = -60*1000;
 
-  std::string hwaddr = utility::Net::GetHwAddr("wlan0");
+  std::string hwaddr = utility::net::GetHwAddr("wlan0");
   std::string device_name = "xiaopi_" +  hwaddr.substr(0,2) + hwaddr.substr(3,2) + hwaddr.substr(6,2);
 
   wifi_softap_ = std::make_shared<WifiSoftap>();
@@ -79,11 +79,11 @@ std::vector<WpaInfo> NetworkManager::Scan(void) {
   scan_results = wifi_station_->GetScanResults();
   PLOGI("%s", scan_results.c_str());
 
-  auto wpa_infos_str = utility::Parser::Split(scan_results, "\n");
+  auto wpa_infos_str = utility::parser::Split(scan_results, "\n");
   std::vector<WpaInfo> wpa_infos;
 
   for(int i = 1; i < wpa_infos_str.size() - 1; ++i) {
-    auto wpa_info_str = utility::Parser::Split(wpa_infos_str[i], "\t");
+    auto wpa_info_str = utility::parser::Split(wpa_infos_str[i], "\t");
     if(wpa_info_str.size() < 5)
       break;
     WpaInfo wpa_info;
@@ -104,10 +104,10 @@ WpaStatus NetworkManager::GetWpaStatus() {
 
   std::string wpa_status_str = wifi_station_->GetStatus();
 //  PLOGI("%s", wpa_status_str.c_str());
-  auto wpa_status_details = utility::Parser::Split(wpa_status_str, "\n");
+  auto wpa_status_details = utility::parser::Split(wpa_status_str, "\n");
 
   for(int i = 0; i < wpa_status_details.size(); ++i) {
-    auto wpa_status_detail = utility::Parser::Split(wpa_status_details[i], "=");
+    auto wpa_status_detail = utility::parser::Split(wpa_status_details[i], "=");
 //    PLOGI("%s", wpa_status_details[i].c_str());
     if(wpa_status_detail.size() == 2) {
       if(wpa_status_detail[0] == "freq")
@@ -131,23 +131,23 @@ void NetworkManager::AddNetwork(std::string ssid, std::string psk, std::string s
 }
 
 std::string NetworkManager::GetStationStatus(void) {
-  return utility::Net::GetIpAddr("wlan0");
+  return utility::net::GetIpAddr("wlan0");
 }
 
 std::string NetworkManager::GetSoftapStatus(void) {
-  return utility::Net::GetIpAddr("wlan1");
+  return utility::net::GetIpAddr("wlan1");
 }
 
 std::string NetworkManager::GetUsbEthernetStatus(void) {
-  return utility::Net::GetIpAddr("usb0");
+  return utility::net::GetIpAddr("usb0");
 }
 
 std::string NetworkManager::GetStationNetmask(void) {
-  return utility::Net::GetNetmask("wlan0");
+  return utility::net::GetNetmask("wlan0");
 }
 
 std::string NetworkManager::GetStationHwAddr(void) {
-  return utility::Net::GetHwAddr("wlan0");
+  return utility::net::GetHwAddr("wlan0");
 }
 
 void NetworkManager::OnEvent(char *buf, int len) {

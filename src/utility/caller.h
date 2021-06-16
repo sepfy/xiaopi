@@ -5,14 +5,11 @@
 #include <string>
 
 namespace utility {
+namespace caller {
 
-class Caller {
- public:
-  static std::string PipeCall(std::string cmd);
+ std::string PipeCall(std::string cmd);
 
-};
-
-
+} // namespace caller
 } // namespace utility
 
 

@@ -5,14 +5,12 @@
 #include <iostream>
 
 namespace utility {
+namespace security {
 
-class Security {
- public:
-  static std::string Base64Encode(const unsigned char* buffer, size_t length);
-  static std::string Base58Encode(const unsigned char* pbegin, size_t len);
-  static std::string Hmac(std::string data, std::string key);
+  std::string Base64Encode(const unsigned char* buffer, size_t length);
+  std::string Base58Encode(const unsigned char* pbegin, size_t len);
+  std::string Hmac(std::string data, std::string key);
 
-};
-
-}
+} // namespace security
+} // namespace utility
 #endif // UTILITY_SECURITY_H_

@@ -5,8 +5,9 @@
 #include "utility/http.h"
 
 namespace utility {
+namespace http {
 
-long Http::Post(const char *url, const char *data) {
+long Post(const char *url, const char *data) {
 
   CURL *curl;
   CURLcode res;
@@ -31,7 +32,8 @@ long Http::Post(const char *url, const char *data) {
     res = curl_easy_perform(curl);
     /* Check for errors */
     if(res != CURLE_OK) {
-      PLOGE("curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+      printf("curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+      http_code = -1;
     }
     else { 
       curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
@@ -46,7 +48,7 @@ long Http::Post(const char *url, const char *data) {
 }
 
 
-long Http::Put(const char *url, const char *data) {
+long Put(const char *url, const char *data) {
 
   CURL *curl;
   CURLcode res;
@@ -72,7 +74,8 @@ long Http::Put(const char *url, const char *data) {
     res = curl_easy_perform(curl);
     /* Check for errors */
     if(res != CURLE_OK) {
-      PLOGE("curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+      printf("curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+      http_code = -1;
     }
     else { 
       curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
@@ -87,4 +90,5 @@ long Http::Put(const char *url, const char *data) {
 
 }
 
+} // namespace http
 } // namespace utility

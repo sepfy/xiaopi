@@ -8,8 +8,9 @@
 #include "utility/security.h"
 
 namespace utility {
+namespace security {
 
-std::string Security::Base64Encode(const unsigned char* buffer, size_t length) {
+std::string Base64Encode(const unsigned char* buffer, size_t length) {
   BIO *bio, *b64;
   BUF_MEM *buffer_ptr;
 
@@ -29,7 +30,7 @@ std::string Security::Base64Encode(const unsigned char* buffer, size_t length) {
 }
 
 // Copy from Bitcoin
-std::string Security::Base58Encode(const unsigned char* pbegin, size_t len) {
+std::string Base58Encode(const unsigned char* pbegin, size_t len) {
 
   static const char* pszBase58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
   const unsigned char* pend = pbegin + len;
@@ -71,7 +72,7 @@ std::string Security::Base58Encode(const unsigned char* pbegin, size_t len) {
   return str;
 }
 
-std::string Security::Hmac(std::string data, std::string key) {
+std::string Hmac(std::string data, std::string key) {
 
     unsigned char digest[EVP_MAX_MD_SIZE] = {'\0'};
     unsigned int digest_len = 0;
@@ -81,4 +82,5 @@ std::string Security::Hmac(std::string data, std::string key) {
     return Base64Encode(digest, digest_len);
 }
 
+} // namespace security
 } // namespace utility
