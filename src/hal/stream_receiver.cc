@@ -137,7 +137,7 @@ void StreamReceiver::Transport() {
   pthread_sigmask(SIG_SETMASK, &mask, NULL);
   AddFrame(key_frame_buf_data_, key_frame_buf_len_);
   while(fd_ > 0) {
-    usleep(33000);
+    usleep(16000);
 
     pthread_mutex_lock(&mutex_);
     StreamData *stream_data = Dequeue();

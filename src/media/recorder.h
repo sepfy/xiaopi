@@ -1,28 +1,24 @@
 #ifndef MEDIA_RECORDER_H_
 #define MEDIA_RECORDER_H_
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-#include <libavformat/avformat.h>
-#include <libavutil/opt.h>
-#include <libavutil/mathematics.h>
-#include <libswscale/swscale.h>
-#include <libswresample/swresample.h>
-#ifdef __cplusplus
-};
-#endif
-
-
+#include <pthread.h>
+#include <mp4v2/mp4v2.h>
 
 class Recorder {
+
  public:
+  Recorder();
+  int Open();
+  void Close();  
   void Stop();
-  int Start();
-  int OpenInput();
-  void CloseInput();  
+  void Start();
+  static void* RecordingThread(void *context);
  private:
+  MP4FileHandle mp4_file_handle_;
+  MP4TrackId mp4_video_track_id_;
+  bool do_recording_;
+  pthread_t tid_;
+#if 0
   int Mux();
   void UpdateSinkName();
   bool recording_ = false;
@@ -34,6 +30,7 @@ class Recorder {
   double duration_;
   int max_frame_num_ = 30*60*5;
   bool recording_status_ = false;
+#endif
 };
 
 

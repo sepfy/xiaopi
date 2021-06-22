@@ -13,6 +13,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#include "detection/detection.h"
 #include "hal/mmal_capturer.h"
 
 #define MMAL_CAMERA_PREVIEW_PORT 0
@@ -58,13 +59,18 @@ int fill_port_buffer(MMAL_PORT_T *port, MMAL_POOL_T *pool) {
 
 static void camera_video_buffer_callback(MMAL_PORT_T *port, MMAL_BUFFER_HEADER_T *buffer) {
   PORT_USERDATA *userdata = (PORT_USERDATA *) port->userdata;
-
   MMAL_BUFFER_HEADER_T *output_buffer = mmal_queue_get(userdata->encoder_input_pool->queue);
+
   if(output_buffer) {
 	  
     mmal_buffer_header_mem_lock(buffer);
     memcpy(output_buffer->data, buffer->data, buffer->length);
     output_buffer->length = buffer->length;
+
+    MmalCapturer *mmal_capturer = (MmalCapturer*)userdata->mmal_capturer;
+    mmal_capturer->detection_->Enqueue(buffer->data, buffer->length);
+    mmal_capturer->detection_->ShowBox(output_buffer->data, buffer->length);
+
     mmal_buffer_header_mem_unlock(buffer);
               
     if (mmal_port_send_buffer(userdata->encoder_input_port, output_buffer) != MMAL_SUCCESS) {
@@ -181,7 +187,7 @@ int MmalCapturer::InitMmalCamera() {
     mmal_format_copy(camera_video_port->format, camera_preview_port->format);
 
     format = camera_video_port->format;
-    format->encoding = MMAL_ENCODING_OPAQUE;// MMAL_ENCODING_OPAQUE;	// MMAL_ENCODING_I420;
+    format->encoding = MMAL_ENCODING_I420;// MMAL_ENCODING_OPAQUE;	// MMAL_ENCODING_I420;
     format->encoding_variant = MMAL_ENCODING_I420;
     format->es->video.width = VIDEO_WIDTH;
     format->es->video.height = VIDEO_HEIGHT;
@@ -349,7 +355,8 @@ int MmalCapturer::InitMmal() {
 }
 void MmalCapturer::Start(void) {
   printf("Resolution = (%d, %d)\n", VIDEO_WIDTH, VIDEO_HEIGHT);
-
+  detection_ = std::make_shared<Detection>(1920, 1080);
+  detection_->Detect();
   AddReceiver("/tmp/cam.264"); 
   AddReceiver("/tmp/record.264"); 
   Init();

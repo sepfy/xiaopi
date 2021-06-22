@@ -4,7 +4,6 @@
 #include <unistd.h>
 #include <sys/reboot.h>
 
-#include "network/network_manager.h"
 #include "system/system_manager.h"
 #include "utility/utility.h"
 

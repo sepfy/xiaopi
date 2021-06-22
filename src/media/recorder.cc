@@ -7,7 +7,79 @@
 #include "utility/utility.h"
 #include "media/recorder.h"
 
+const int kMaxFileSize = 1024*1024*64;
 
+Recorder::Recorder() {
+  do_recording_ = false;
+  tid_ = -1;
+}
+
+void* Recorder::RecordingThread(void *context) {
+
+  Recorder *recorder = (Recorder*)context;
+
+  while(recorder->do_recording_) {
+
+//    if(
+//    MP4WriteSample(recorder->mp4_file_handle_, recorder->mp4_video_track_id_, 
+//     pBuf, nBuf , MP4_INVALID_DURATION, 0, 1);
+  }
+
+  recorder->Close();
+  recorder->tid_ = -1;
+}
+
+int Recorder::Open() {
+
+  time_t t = time(NULL);
+  struct tm tm = *localtime(&t);
+  char filename[256] = {0};
+  sprintf(filename, "/mnt/%d%02d%02d-%02d%02d%02d.mp4", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec); 
+
+  mp4_file_handle_ = MP4CreateEx(filename,  0, 1, 1, 0, 0, 0, 0);
+  if(mp4_file_handle_ == MP4_INVALID_FILE_HANDLE) {
+    PLOGE("open file fialed.\n");
+    return -1;
+  }
+
+  MP4SetTimeScale(mp4_file_handle_, 90000);
+
+  mp4_video_track_id_ = MP4AddH264VideoTrack(mp4_file_handle_,
+   90000, 90000 / 30, 1920, 1080,
+   0x64, //sps[1] AVCProfileIndication
+   0x00, //sps[2] profile_compat
+   0x1f, //sps[3] AVCLevelIndication
+  3); // 4 bytes length before each NAL unit
+
+  if(mp4_video_track_id_ == MP4_INVALID_TRACK_ID) {
+    PLOGE("add video track fialed.\n");
+    return -1;
+  }
+
+  return 0;
+}
+
+void Recorder::Start() {
+  
+  if(tid_ == -1) {
+    int ret = pthread_create(&tid_, NULL, Recorder::RecordingThread, this);
+    if(ret == 0)
+      pthread_detach(tid_);
+  }
+  
+}
+
+
+void Recorder::Stop() {
+  do_recording_ = false;
+}
+
+void Recorder::Close() {
+  MP4Close(mp4_file_handle_, 0);
+}
+
+
+#if 0
 void Recorder::Stop() {
   recording_status_ = false;
 }
@@ -139,3 +211,4 @@ int Recorder::Mux() {
 
   return 0;
 }
+#endif
